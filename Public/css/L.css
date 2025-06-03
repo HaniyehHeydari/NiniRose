@@ -1,0 +1,118 @@
+body {
+    background-image: url('../image/4.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 100vh;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+/* لایه‌ی شیشه‌ای فقط بین هدر و فوتر */
+.background-blur-layer {
+    position: fixed; /* کل صفحه رو بگیره و ثابت بمونه */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0; /* زیر تمام محتوا باشه */
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+/* تمام محتوای واقعی بالاتر قرار بگیره */
+header, footer, .main, #form-sign {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* محتوا روی blur قرار بگیره */
+.main {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 0;
+    z-index: 1;
+}
+
+/* فرم ورود */
+#form-sign {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    padding: 50px;
+    border-radius: 16px;
+    background-color: white;
+    box-shadow: 0 0 20px 10px #ecebe9;
+}
+
+
+#emailuser,
+#pass {
+    background-color: white;
+    border: 1px solid #9FACB9;
+    border-radius: 20px;
+    padding: 15px;
+    width: 92%;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#emailuser:focus,
+#pass:focus {
+    outline: none;
+}
+
+#open {
+    height: 55px;
+    font-size: large;
+    background-color: #EA6269;
+    color: white;
+    border: 1px solid #EA6269;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#open:hover {
+    opacity: 0.9;
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+#sabt {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#sabtnam {
+    color: #EA6269;
+    text-decoration: none;
+}
+
+.account {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.logo {
+    text-align: center;
+}
+
+.logo img {
+    display: inline-block;
+    margin: 0 auto;
+}

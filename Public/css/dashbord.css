@@ -1,0 +1,50 @@
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+  padding-top: 1rem;
+  z-index: 1000;
+}
+
+.sidebar .nav-link {
+  color: #333;
+  font-weight: 500;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link i {
+  margin-left: 10px;
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.sidebar .nav-link:hover {
+  background-color: #fdf1f3;
+  color: #EA6269;
+}
+
+.sidebar .nav-link:hover i {
+  color: #EA6269;
+}
+
+.sidebar .nav-link.active {
+  background-color: #fdf1f3;
+  color: #EA6269;
+}
+
+.sidebar .nav-link.active i {
+  color: #EA6269;
+}

@@ -54,7 +54,7 @@ $role = $_SESSION['user']['role'] ?? 'store_admin';
             </a>
         <?php endif; ?>
 
-        <a href="#" class="nav-link">
+        <a href="manage-comments.php" class="nav-link">
             <i class="bi bi-chat-left-dots"></i> کامنت‌ها
         </a>
     </nav>

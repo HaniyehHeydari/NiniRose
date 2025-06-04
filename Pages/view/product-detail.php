@@ -103,6 +103,10 @@ $stock = intval($product['stock'] ?? 0);
             color: white !important;
             border-color: #198754 !important;
         }
+
+        .reply-form-container {
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 
@@ -160,7 +164,7 @@ $stock = intval($product['stock'] ?? 0);
                             </div>
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div>
-                            
+                                    <label>تعداد:</label>
                                     <div class="input-group" style="width: 120px;">
                                         <button class="btn border btn-outline-secondary minus-btn bg-white" type="button">-</button>
                                         <input type="number" name="quantity" id="quantity" class="form-control border bg-white text-center quantity-input" value="1" min="1" max="<?= $stock ?>">
@@ -171,7 +175,7 @@ $stock = intval($product['stock'] ?? 0);
                                     افزودن به سبد خرید
                                 </button>
                                 <?php if (empty($_SESSION['user'])): ?>
-                                    <div class="text-danger small">برای افزودن به سبد خرید باید وارد شوید</div>
+                                    <div class="text-danger small">برای افزودن محصول به سبد خرید باید وارد حساب کاربری خود شوید</div>
                                 <?php endif; ?>
                             </div>
                         <?php else: ?>
@@ -225,40 +229,96 @@ $stock = intval($product['stock'] ?? 0);
                     <div class="top-green-bar"></div>
                     <div class="p-4 bg-light">
                         <?php
+                        // ۱. فراخوانی کامنت‌های اصلی (parent_id IS NULL)
                         $comment_stmt = $conn->prepare("
-                        SELECT c.*, u.username 
-                        FROM comments c 
-                        LEFT JOIN users u ON c.user_id = u.id 
-                        WHERE c.product_id = ? 
-                        ORDER BY c.created_at DESC
-                    ");
+                            SELECT c.id, c.content, c.created_at, u.username 
+                            FROM comments c 
+                            LEFT JOIN users u ON c.user_id = u.id 
+                            WHERE c.product_id = ? AND c.parent_id IS NULL
+                            ORDER BY c.created_at DESC
+                        ");
                         $comment_stmt->bind_param("i", $id);
                         $comment_stmt->execute();
                         $comments_res = $comment_stmt->get_result();
 
                         if ($comments_res->num_rows > 0):
                             while ($comment = $comments_res->fetch_assoc()):
+                                $comment_id = $comment['id'];
                         ?>
+                                <!-- هر کامنت اصلی -->
                                 <div class="mb-3">
                                     <strong><?= htmlspecialchars($comment['username']) ?></strong>
                                     <div class="text-muted"><?= nl2br(htmlspecialchars($comment['content'])) ?></div>
                                     <div class="text-secondary small"><?= date('Y/m/d H:i', strtotime($comment['created_at'])) ?></div>
-                                    <hr>
+
+                                    <!-- ۲. دکمه ریپلای -->
+                                    <button class="btn btn-sm text-primary mt-2 reply-btn rounded-pill" data-comment-id="<?= $comment_id ?>">
+                                        <i class="bi bi-reply-fill"></i> پاسخ
+                                    </button>
+
+
+                                    <!-- ۳. نمایش ریپلای‌های آن کامنت -->
+                                    <?php
+                                    $reply_stmt = $conn->prepare("
+                                SELECT c2.id, c2.content, c2.created_at, u2.username 
+                                FROM comments c2 
+                                LEFT JOIN users u2 ON c2.user_id = u2.id 
+                                WHERE c2.parent_id = ? 
+                                ORDER BY c2.created_at ASC
+                            ");
+                                    $reply_stmt->bind_param("i", $comment_id);
+                                    $reply_stmt->execute();
+                                    $replies_res = $reply_stmt->get_result();
+
+                                    if ($replies_res->num_rows > 0):
+                                    ?>
+                                        <div class="mt-3 ps-4 border-start border-2 border-muted">
+                                            <?php while ($reply = $replies_res->fetch_assoc()): ?>
+                                                <div class="mb-3">
+                                                    <strong><?= htmlspecialchars($reply['username']) ?></strong>
+                                                    <div class="text-muted"><?= nl2br(htmlspecialchars($reply['content'])) ?></div>
+                                                    <div class="text-secondary small"><?= date('Y/m/d H:i', strtotime($reply['created_at'])) ?></div>
+                                                </div>
+                                            <?php endwhile; ?>
+                                        </div>
+                                    <?php
+                                    endif;
+                                    $reply_stmt->close();
+                                    ?>
+
+                                    <!-- ۴. فرم ریپلای (ابتدا مخفی) -->
+                                    <div class="mt-2 reply-form-container" id="reply-form-<?= $comment_id ?>" style="display: none;">
+                                        <form action="save-comment.php" method="POST" class="mt-2">
+                                            <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                            <input type="hidden" name="parent_id" value="<?= $comment_id ?>">
+                                            <div class="mb-2">
+                                                <textarea name="content" rows="2" class="form-control shadow-none border" placeholder="نظر خود را بنویسید..." required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-success btn-sm">ارسال پاسخ</button>
+                                            <button type="button" class="btn btn-secondary btn-sm cancel-reply" data-comment-id="<?= $comment_id ?>">انصراف</button>
+                                        </form>
+                                    </div>
                                 </div>
-                            <?php endwhile;
-                        else: ?>
+                                <hr>
+                            <?php
+                            endwhile;
+                        else:
+                            ?>
                             <div class="text-muted">هنوز نظری ثبت نشده است.</div>
-                        <?php endif;
-                        $comment_stmt->close(); ?>
+                        <?php
+                        endif;
+                        $comment_stmt->close();
+                        ?>
                     </div>
                 </div>
 
+                <!-- ۵. فرم ارسال کامنت جدید (بدون parent_id) -->
                 <?php if (!empty($_SESSION['user'])): ?>
                     <form id="comment-form" action="save-comment.php" method="POST" class="mt-4">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                         <div class="mb-3">
                             <label for="content" class="form-label">نظر خود را بنویسید:</label>
-                            <textarea name="content" id="content" rows="4" class="form-control" required></textarea>
+                            <textarea name="content" id="content" rows="4" class="form-control shadow-none border" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-success">ارسال نظر</button>
                     </form>
@@ -270,7 +330,6 @@ $stock = intval($product['stock'] ?? 0);
             </div>
         </div>
     </div>
-
 
     <?php include('../../Templates/Footer.php') ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -406,6 +465,27 @@ $stock = intval($product['stock'] ?? 0);
                         });
                         console.error(error);
                     });
+            });
+
+            // نمایش/مخفی‌سازی فرم ریپلای
+            document.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const commentId = this.getAttribute('data-comment-id');
+                    const formDiv = document.getElementById('reply-form-' + commentId);
+                    if (formDiv) {
+                        formDiv.style.display = 'block';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.cancel-reply').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const commentId = this.getAttribute('data-comment-id');
+                    const formDiv = document.getElementById('reply-form-' + commentId);
+                    if (formDiv) {
+                        formDiv.style.display = 'none';
+                    }
+                });
             });
         });
     </script>

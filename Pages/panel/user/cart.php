@@ -56,7 +56,7 @@ $stmt->close();
             <div class="col-lg-8">
                 <?php if (!empty($items)): ?>
                     <div class="table-responsive border rounded shadow-sm">
-                        <table class="table align-middle text-center">
+                        <table class="table align-middle text-center mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th> </th>

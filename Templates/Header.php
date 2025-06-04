@@ -134,7 +134,7 @@
                             <?php endif; ?>
 
                             <li><a class="dropdown-item d-flex align-items-center"
-                                    href="<?php echo BASE_URL; ?>Pages/orders.php">
+                                    href="<?php echo BASE_URL; ?>Pages/panel/user/orders.php">
                                     <i class="bi bi-card-checklist me-2" style="font-size: 1.3rem;"></i> سفارشات</a></li>
                             <li><a class="dropdown-item d-flex align-items-center"
                                     href="<?php echo BASE_URL; ?>Pages/panel/user/change-password.php">

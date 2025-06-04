@@ -7,23 +7,22 @@ if (!isset($_SESSION['user']['id'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id = $_SESSION['user']['id'];
-    $fullname = $_POST['fullname'];
-    $phone = $_POST['phone'];
-    $address = $_POST['address'];
-    $postal_code = $_POST['postal_code'];
+$user_id = $_SESSION['user']['id'];
 
-    // اعتبارسنجی
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $fullname     = trim($_POST['fullname']);
+    $phone        = trim($_POST['phone']);
+    $address      = trim($_POST['address']);
+    $postal_code  = trim($_POST['postal_code']);
+
+    // اعتبارسنجی اولیه
     $errors = [];
-    if (empty($fullname) || empty($phone) || empty($address) || empty($postal_code)) {
+    if ($fullname === '' || $phone === '' || $address === '' || $postal_code === '') {
         $errors[] = "همه فیلدها باید پر شوند.";
     }
-
     if (!preg_match('/^[0-9]{10,11}$/', $phone)) {
         $errors[] = "شماره تماس باید 10 یا 11 رقم باشد.";
     }
-
     if (!preg_match('/^[0-9]{10}$/', $postal_code)) {
         $errors[] = "کد پستی باید 10 رقم باشد.";
     }
@@ -34,29 +33,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // به‌روزرسانی آدرس در جدول users
-    $sql = "UPDATE users SET address = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $address, $user_id);
+    // ۱. ابتدا مقدار فعلی address را از دیتابیس بخوانیم
+    $check_sql = "SELECT address FROM users WHERE id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $user_id);
+    $check_stmt->execute();
+    $check_res = $check_stmt->get_result();
+    $row = $check_res->fetch_assoc();
+    $existing_address = $row['address'] ?? null;
+    $check_stmt->close();
 
-    if ($stmt->execute()) {
-        // ذخیره اطلاعات در سشن برای استفاده در صفحه پرداخت
-        $_SESSION['checkout_data'] = [
-            'fullname' => $fullname,
-            'phone' => $phone,
-            'address' => $address,
-            'postal_code' => $postal_code
-        ];
+    // ۲. اگر آدرس فعلی نال یا خالی بود، آن را به‌روزرسانی کنیم
+    if ($existing_address === null || $existing_address === '') {
+        $update_sql = "UPDATE users SET address = ? WHERE id = ?";
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("si", $address, $user_id);
 
-        // انتقال به صفحه پرداخت
-        header("Location: payment.php");
-        exit();
+        if (!$update_stmt->execute()) {
+            $_SESSION['errors'] = ["خطا در به‌روزرسانی آدرس"];
+            $update_stmt->close();
+            header("Location: checkout.php");
+            exit();
+        }
+        $update_stmt->close();
     } else {
-        $_SESSION['errors'] = ["خطا در به‌روزرسانی آدرس"];
-        header("Location: checkout.php");
-        exit();
+        // اگر آدرس از قبل وجود دارد، از همان مقدار برای ادامهٔ فرایند استفاده کنیم
+        $address = $existing_address;
     }
 
-    $stmt->close();
-    $conn->close();
+    // ۳. ذخیرهٔ اطلاعات checkout در سشن
+    $_SESSION['checkout_data'] = [
+        'fullname'    => $fullname,
+        'phone'       => $phone,
+        'address'     => $address,
+        'postal_code' => $postal_code
+    ];
+
+    // ۴. انتقال به صفحه پرداخت
+    header("Location: payment.php");
+    exit();
 }

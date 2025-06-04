@@ -7,63 +7,68 @@ if (!isset($_SESSION['user']['id']) || !isset($_SESSION['checkout_data'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $errors = [];
+$user_id = $_SESSION['user']['id'];
 
-    // اعتبارسنجی اطلاعات کارت
-    if (empty($_POST['card_number']) || !preg_match('/^[0-9]{16}$/', str_replace('-', '', $_POST['card_number']))) {
-        $errors[] = "شماره کارت معتبر وارد کنید";
-    }
+// دریافت سبد خرید کاربر از دیتابیس
+$sql = "
+    SELECT 
+        c.product_id, 
+        c.quantity, 
+        p.price 
+    FROM carts c 
+    JOIN products p ON c.product_id = p.id 
+    WHERE c.user_id = ?
+";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$cart = $result->fetch_all(MYSQLI_ASSOC);
 
-    if (empty($_POST['expiry_date']) || !preg_match('/^(0[1-9]|1[0-2])\/?([0-9]{2})$/', $_POST['expiry_date'])) {
-        $errors[] = "تاریخ انقضا معتبر وارد کنید (فرمت: MM/YY)";
-    }
-
-    if (empty($_POST['cvv2']) || !preg_match('/^[0-9]{3,4}$/', $_POST['cvv2'])) {
-        $errors[] = "CVV2 معتبر وارد کنید";
-    }
-
-    if (empty($_POST['dynamic_password']) || strlen($_POST['dynamic_password']) < 4) {
-        $errors[] = "رمز دوم پویا معتبر وارد کنید";
-    }
-
-    if (!empty($errors)) {
-        $_SESSION['payment_errors'] = $errors;
-        header("Location: payment.php");
-        exit();
-    }
-
-    // در اینجا معمولاً به درگاه پرداخت متصل می‌شوید
-    // برای مثال ساده، پرداخت موفق در نظر گرفته می‌شود
-    
-    // ذخیره آدرس در دیتابیس
-    $user_id = $_SESSION['user']['id'];
-    $address = $_SESSION['checkout_data']['address'];
-    
-    $sql = "UPDATE users SET address = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $address, $user_id);
-    $stmt->execute();
-    $stmt->close();
-
-    // ذخیره اطلاعات سفارش در دیتابیس
-    $order_data = [
-        'user_id' => $user_id,
-        'fullname' => $_SESSION['checkout_data']['fullname'],
-        'phone' => $_SESSION['checkout_data']['phone'],
-        'address' => $address,
-        'postal_code' => $_SESSION['checkout_data']['postal_code'],
-        'amount' => 100000, // مبلغ پرداخت شده
-        'payment_status' => 'completed'
-    ];
-    
-    // کد ذخیره سفارش در دیتابیس...
-
-    // پاک کردن اطلاعات سشن
-    unset($_SESSION['checkout_data']);
-
-    // هدایت به صفحه موفقیت آمیز
-    $_SESSION['payment_success'] = true;
-    header("Location: payment-success.php");
+if (empty($cart)) {
+    $_SESSION['errors'] = ['سبد خرید خالی است!'];
+    header("Location: checkout.php");
     exit();
 }
+
+// پردازش هر محصول موجود در سبد به‌صورت جداگانه
+foreach ($cart as $item) {
+    $product_id  = $item['product_id'];
+    $quantity    = $item['quantity'];
+    $price       = $item['price'];
+    $total_price = $price * $quantity;
+
+    // 1) درج در جدول orders (با ستون quantity)
+    $stmt_order = $conn->prepare("
+        INSERT INTO orders 
+            (user_id, product_id, quantity, total_price, status, created_at) 
+        VALUES 
+            (?, ?, ?, ?, 0, NOW())
+    ");
+    $stmt_order->bind_param("iiid", $user_id, $product_id, $quantity, $total_price);
+    $stmt_order->execute();
+    $order_id = $stmt_order->insert_id;
+    $stmt_order->close();
+
+    // 2) درج در جدول order_items (بدون ستون quantity)
+    $stmt_item = $conn->prepare("
+        INSERT INTO order_items 
+            (order_id, product_id) 
+        VALUES 
+            (?, ?)
+    ");
+    $stmt_item->bind_param("ii", $order_id, $product_id);
+    $stmt_item->execute();
+    $stmt_item->close();
+
+    // 3) کاهش موجودی محصول
+    $conn->query("UPDATE products SET stock = stock - $quantity WHERE id = $product_id");
+}
+
+// پاک کردن سبد خرید از دیتابیس
+$conn->query("DELETE FROM carts WHERE user_id = $user_id");
+unset($_SESSION['cart']);
+
+$_SESSION['payment_success'] = true;
+header("Location: payment.php");
+exit();

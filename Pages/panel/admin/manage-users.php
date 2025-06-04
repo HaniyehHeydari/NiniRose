@@ -1,13 +1,14 @@
 <?php
+session_start();
 include('../../../config/db.php');
 
-// فقط سوپر ادمین دسترسی داشته باشد
+// فقط سوپر ادمین دسترسی دارد
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
     die("دسترسی غیرمجاز");
 }
 
-// دریافت همه کاربران به جز سوپر ادمین
-$sql = "SELECT * FROM users WHERE role != 'super_admin' ORDER BY created_at DESC";
+// دریافت همه کاربران به جز سوپر ادمین (حاوی ستون address)
+$sql = "SELECT id, username, email, phone, role, created_at, address FROM users WHERE role != 'super_admin' ORDER BY created_at DESC";
 $result = $conn->query($sql);
 ?>
 
@@ -19,6 +20,7 @@ $result = $conn->query($sql);
     <title>مدیریت کاربران</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .main-content {
             margin-right: 250px;
@@ -54,9 +56,10 @@ $result = $conn->query($sql);
                 <table class="table table-bordered table-hover text-center align-middle">
                     <thead>
                         <tr>
-                            <th>نام</th>
+                            <th>نام کاربری</th>
                             <th>ایمیل</th>
                             <th>شماره تماس</th>
+                            <th>آدرس</th>
                             <th>نقش</th>
                             <th>تاریخ ثبت‌نام</th>
                             <th>عملیات</th>
@@ -68,6 +71,7 @@ $result = $conn->query($sql);
                                 <td><?= htmlspecialchars($row['username']) ?></td>
                                 <td><?= htmlspecialchars($row['email']) ?></td>
                                 <td><?= htmlspecialchars($row['phone']) ?></td>
+                                <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['role']) ?></td>
                                 <td><?= htmlspecialchars($row['created_at']) ?></td>
                                 <td>
@@ -96,9 +100,6 @@ $result = $conn->query($sql);
 
     </div>
 
-    <!-- SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         // تایید حذف با SweetAlert
         document.querySelectorAll('.delete-btn').forEach(button => {
@@ -109,11 +110,11 @@ $result = $conn->query($sql);
                     showCancelButton: true,
                     confirmButtonText: 'بله، حذف شود',
                     cancelButtonText: 'انصراف',
-                    confirmButtonColor: '#28a745', // سبز
-                    cancelButtonColor: '#d33', // قرمز/خنثی
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33',
                     customClass: {
-                        confirmButton: 'order-1', // دکمه تایید در راست
-                        cancelButton: 'order-2' // دکمه انصراف در چپ
+                        confirmButton: 'order-1',
+                        cancelButton: 'order-2'
                     },
                     buttonsStyling: true
                 }).then((result) => {
@@ -124,8 +125,7 @@ $result = $conn->query($sql);
             });
         });
 
-
-        // نمایش پیام های موفقیت و خطا با SweetAlert
+        // نمایش پیام موفقیت یا خطا
         <?php if (isset($_SESSION['success_message'])): ?>
             Swal.fire({
                 icon: 'success',
@@ -136,7 +136,6 @@ $result = $conn->query($sql);
                 showConfirmButton: false
             });
             <?php unset($_SESSION['success_message']); ?>
-
         <?php elseif (isset($_SESSION['error_message'])): ?>
             Swal.fire({
                 icon: 'error',

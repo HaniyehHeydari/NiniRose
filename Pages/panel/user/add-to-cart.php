@@ -2,11 +2,11 @@
 session_start();
 include('../../../config/db.php');
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user']['id'])) {
     die(json_encode(['success' => false, 'message' => 'لطفاً ابتدا وارد شوید']));
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user']['id'];
 $product_id = (int)($_POST['product_id'] ?? 0);
 $quantity = (int)($_POST['quantity'] ?? 1);
 $size = $_POST['size'] ?? null;

@@ -44,7 +44,7 @@ $role = $_SESSION['user']['role'] ?? 'store_admin';
         <a href="manage-products.php" class="nav-link">
             <i class="bi bi-box-seam"></i> محصولات
         </a>
-        <a href="#" class="nav-link">
+        <a href="manage-orders.php" class="nav-link">
             <i class="bi bi-basket"></i> سفارشات
         </a>
 

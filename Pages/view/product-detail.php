@@ -9,6 +9,7 @@ if ($id <= 0) {
     exit;
 }
 
+// ۱. دریافت اطلاعات محصول از جمله ستون stock
 $stmt = $conn->prepare("SELECT p.*, c.name AS category_name, s.name AS store_name 
                         FROM products p
                         LEFT JOIN categories c ON p.category_id = c.id
@@ -24,6 +25,7 @@ if (!$product) {
     exit;
 }
 
+// ۲. دریافت سایزها (در صورت وجود)
 $sizes = [];
 $size_stmt = $conn->prepare("SELECT DISTINCT size FROM detail WHERE product_id = ? AND size IS NOT NULL AND size != ''");
 $size_stmt->bind_param("i", $id);
@@ -34,6 +36,7 @@ while ($row = $res->fetch_assoc()) {
 }
 $size_stmt->close();
 
+// ۳. دریافت رنگ‌ها (در صورت وجود)
 $colors = [];
 $color_stmt = $conn->prepare("SELECT DISTINCT color FROM detail WHERE product_id = ? AND color IS NOT NULL AND color != ''");
 $color_stmt->bind_param("i", $id);
@@ -44,12 +47,16 @@ while ($row = $res->fetch_assoc()) {
 }
 $color_stmt->close();
 
+// ۴. دریافت توضیحات تکمیلی (در صورت وجود)
 $detail_stmt = $conn->prepare("SELECT description FROM detail WHERE product_id = ? AND description IS NOT NULL AND description != '' LIMIT 1");
 $detail_stmt->bind_param("i", $id);
 $detail_stmt->execute();
 $detail_res = $detail_stmt->get_result();
 $detail = $detail_res->fetch_assoc();
 $detail_stmt->close();
+
+// ۵. گرفتن تعداد موجودی محصول برای غیرفعال‌سازی دکمه
+$stock = intval($product['stock'] ?? 0);
 ?>
 
 <!DOCTYPE html>
@@ -115,6 +122,7 @@ $detail_stmt->close();
                         <p class="text-muted"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
                     <?php endif; ?>
 
+                    <!-- ۶. فرم افزودن به سبد خرید با بررسی stock -->
                     <form id="add-to-cart-form">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                         <input type="hidden" name="quantity" value="1" id="quantity-input">
@@ -143,22 +151,32 @@ $detail_stmt->close();
                             </div>
                         <?php endif; ?>
 
+                        <!-- ۷. نمایش قیمت و موجودی -->
                         <h5 class="text-success fw-bold"><?= number_format($product['price']) ?> تومان</h5>
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div>
-                                <label>تعداد:</label>
-                                <div class="input-group" style="width: 120px;">
-                                    <button class="btn border btn-outline-secondary minus-btn bg-white" type="button">-</button>
-                                    <input type="number" name="quantity" id="quantity" class="form-control border bg-white text-center quantity-input" value="1" min="1">
-                                    <button class="btn border btn-outline-secondary plus-btn bg-white" type="button">+</button>
-                                </div>
+
+                        <?php if ($stock > 0): ?>
+                            <div class="mb-2">
+                                <span class="small text-secondary">تعداد موجود: <?= $stock ?> عدد</span>
                             </div>
-                            <button type="submit" class="btn btn-danger mt-3" <?= empty($_SESSION['user']) ? 'disabled' : '' ?>>
-                                افزودن به سبد خرید
-                            </button>
-                        </div>
-                        <?php if (empty($_SESSION['user'])): ?>
-                            <div class="text-danger small">برای افزودن به سبد خرید باید وارد شوید</div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div>
+                            
+                                    <div class="input-group" style="width: 120px;">
+                                        <button class="btn border btn-outline-secondary minus-btn bg-white" type="button">-</button>
+                                        <input type="number" name="quantity" id="quantity" class="form-control border bg-white text-center quantity-input" value="1" min="1" max="<?= $stock ?>">
+                                        <button class="btn border btn-outline-secondary plus-btn bg-white" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-danger" <?= empty($_SESSION['user']) ? 'disabled' : '' ?>>
+                                    افزودن به سبد خرید
+                                </button>
+                                <?php if (empty($_SESSION['user'])): ?>
+                                    <div class="text-danger small">برای افزودن به سبد خرید باید وارد شوید</div>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <!-- ۸. اگر ناموجود بود -->
+                            <div class="alert alert-danger py-2 px-3 d-inline-block">ناموجود</div>
                         <?php endif; ?>
                     </form>
                 </div>
@@ -255,12 +273,11 @@ $detail_stmt->close();
 
 
     <?php include('../../Templates/Footer.php') ?>
-    <!-- قبل از بسته شدن تگ </body> این کدها را اضافه کنید -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // فعال کردن تب‌ها
+            // کنترل تب‌ها
             const tabElms = document.querySelectorAll('button[data-bs-toggle="tab"]');
             tabElms.forEach(tabEl => {
                 tabEl.addEventListener('click', function(e) {
@@ -270,17 +287,7 @@ $detail_stmt->close();
                 });
             });
 
-            // بقیه کدهای شما...
-            const form = document.getElementById('add-to-cart-form');
-            const minusBtn = document.querySelector('.minus-btn');
-            const plusBtn = document.querySelector('.plus-btn');
-            const quantityInput = document.getElementById('quantity');
-
-            // ... بقیه کدهای JavaScript شما
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // کنترل دکمه‌ی + و -
             const form = document.getElementById('add-to-cart-form');
             const minusBtn = document.querySelector('.minus-btn');
             const plusBtn = document.querySelector('.plus-btn');
@@ -292,7 +299,12 @@ $detail_stmt->close();
             });
 
             plusBtn.addEventListener('click', () => {
-                quantityInput.value = parseInt(quantityInput.value) + 1;
+                // جلوگیری از افزایش بیش از موجودی
+                const maxStock = <?= $stock ?>;
+                const val = parseInt(quantityInput.value);
+                if (val < maxStock) {
+                    quantityInput.value = val + 1;
+                }
             });
 
             form.addEventListener('submit', function(e) {
@@ -310,9 +322,24 @@ $detail_stmt->close();
                     return;
                 <?php endif; ?>
 
-                e.preventDefault();
+                // اگر محصول ناموجود است، از ارسال فرم جلوگیری کن
+                const maxStock = <?= $stock ?>;
+                if (maxStock <= 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'محصول ناموجود است',
+                        text: 'این محصول موجودی ندارد',
+                        confirmButtonText: 'باشه',
+                        confirmButtonColor: '#3085d6',
+                    });
+                    return;
+                }
+
+                // کنترل انتخاب سایز در صورت وجود
                 const sizeSelect = form.querySelector('select[name="size"]');
                 if (sizeSelect && !sizeSelect.value) {
+                    e.preventDefault();
                     Swal.fire({
                         icon: 'error',
                         title: 'انتخاب سایز ضروری است',
@@ -324,8 +351,10 @@ $detail_stmt->close();
                     return;
                 }
 
+                // کنترل انتخاب رنگ در صورت وجود
                 const colorSelect = form.querySelector('select[name="color"]');
                 if (colorSelect && !colorSelect.value) {
+                    e.preventDefault();
                     Swal.fire({
                         icon: 'error',
                         title: 'انتخاب رنگ ضروری است',
@@ -337,6 +366,8 @@ $detail_stmt->close();
                     return;
                 }
 
+                // ارسال AJAX به add-to-cart.php
+                e.preventDefault();
                 const formData = new FormData(form);
                 fetch('../panel/user/add-to-cart.php', {
                         method: 'POST',

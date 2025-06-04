@@ -11,33 +11,36 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
 $user_id = $_SESSION['user']['id'];
 $alert = null;
 
-// دریافت اطلاعات فعلی کاربر
-$sql = "SELECT username, email, phone FROM users WHERE id = ?";
+// ۱. دریافت اطلاعات فعلی کاربر (شامل address)
+$sql = "SELECT username, email, phone, address FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
+$stmt->close();
 
 if (!$user) {
     $alert = ['type' => 'error', 'message' => 'کاربر پیدا نشد!'];
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $phone = $_POST['phone'];
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['email']);
+    $phone    = trim($_POST['phone']);
+    $address  = trim($_POST['address']);
 
-    // بروزرسانی اطلاعات
-    $update_sql = "UPDATE users SET username = ?, email = ?, phone = ? WHERE id = ?";
+    // ۲. بروزرسانی اطلاعات (حالا شامل address)
+    $update_sql = "UPDATE users SET username = ?, email = ?, phone = ?, address = ? WHERE id = ?";
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sssi", $username, $email, $phone, $user_id);
+    $update_stmt->bind_param("ssssi", $username, $email, $phone, $address, $user_id);
 
     if ($update_stmt->execute()) {
         $alert = ['type' => 'success', 'message' => 'اطلاعات با موفقیت به‌روزرسانی شد.'];
-        // برای به‌روزرسانی نمایش مقادیر فرم:
-        $user = ['username' => $username, 'email' => $email, 'phone' => $phone];
+        // برای نمایش مجدد مقادیر در فرم:
+        $user = ['username' => $username, 'email' => $email, 'phone' => $phone, 'address' => $address];
     } else {
         $alert = ['type' => 'error', 'message' => 'خطا در به‌روزرسانی اطلاعات.'];
     }
+    $update_stmt->close();
 }
 ?>
 
@@ -55,7 +58,7 @@ if (!$user) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        input#email, input#phone {
+        input#email, input#phone, textarea#address {
             text-align: right !important;
         }
     </style>
@@ -67,33 +70,47 @@ if (!$user) {
         <div class="col-12 col-md-8 col-lg-6 mt-4">
             <div class="card p-5 shadow">
                 <form action="" method="POST">
+                    <!-- نام کاربری -->
                     <div class="mb-4">
                         <label for="username" class="form-label">نام کاربری:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                             <input type="text" class="form-control shadow-none border" id="username" name="username"
-                                   value="<?= htmlspecialchars($user['username']) ?>" required>
+                                   value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
                         </div>
                     </div>
 
+                    <!-- ایمیل -->
                     <div class="mb-4">
                         <label for="email" class="form-label">ایمیل:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                             <input type="email" class="form-control shadow-none border" id="email" name="email"
-                                   value="<?= htmlspecialchars($user['email']) ?>" required>
+                                   value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                         </div>
                     </div>
 
-                    <div class="mb-5">
+                    <!-- شماره تماس -->
+                    <div class="mb-4">
                         <label for="phone" class="form-label">شماره تماس:</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
                             <input type="tel" class="form-control shadow-none border" id="phone" name="phone"
-                                   value="<?= htmlspecialchars($user['phone']) ?>" required>
+                                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
                         </div>
                     </div>
 
+                    <!-- آدرس -->
+                    <div class="mb-5">
+                        <label for="address" class="form-label">آدرس:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <textarea rows="1" class="form-control shadow-none border" id="address" name="address"
+                                      placeholder="آدرس خود را وارد کنید" required><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                        </div>
+                    </div>
+
+                    <!-- دکمه‌ها -->
                     <div class="d-flex justify-content-center gap-5">
                         <button type="submit" class="btn btn-danger" style="width: 45%;">ذخیره اطلاعات</button>
                         <a href="../../view/MainPage.php" class="btn btn-secondary" style="width: 45%;">بازگشت</a>

@@ -4,6 +4,7 @@ include_once dirname(__DIR__) . '/../Config/config.php';
 
 $slider_result = $conn->query("SELECT * FROM sliders ORDER BY created_at DESC");
 $product_result = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 10");
+$article_result = $conn->query("SELECT * FROM articles ORDER BY created_at DESC LIMIT 4"); // 👈 مقالات
 ?>
 
 <!DOCTYPE html>
@@ -123,7 +124,6 @@ $product_result = $conn->query("SELECT * FROM products ORDER BY created_at DESC 
             <h4 class="text-start mb-4">جدیدترین محصولات</h4>
 
             <div class="product-scroll-wrapper">
-                <!-- فلش‌ها روی لیست محصولات -->
                 <button class="scroll-btn prev" onclick="scrollProducts(-1)">
                     <i class="bi bi-chevron-right fs-5"></i>
                 </button>
@@ -147,6 +147,28 @@ $product_result = $conn->query("SELECT * FROM products ORDER BY created_at DESC 
                 </div>
             </div>
         </div>
+
+        <!-- نمایش مقالات -->
+<div class="container-fluid my-5 px-4">
+    <h4 class="text-start mb-4">آخرین مقالات</h4>
+    <div class="row g-4">
+        <?php while ($article = $article_result->fetch_assoc()): ?>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card h-100 shadow-sm">
+                    <img src="../../<?= htmlspecialchars($article['image']) ?>" class="card-img-top" style="height: 180px; object-fit: cover;" alt="<?= htmlspecialchars($article['title']) ?>">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-start hover-pointer"><?= htmlspecialchars($article['title']) ?></h5>
+                        <div class="mt-auto text-center">
+                            <a href="article-detail.php?id=<?= $article['id'] ?>" class="btn btn-danger btn-md w-100 mt-2">مطالعه کنید</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
+
     </div>
 
     <?php include('../../Templates/Footer.php') ?>

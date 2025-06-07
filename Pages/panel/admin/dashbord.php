@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$role = $_SESSION['user']['role'] ?? 'store_admin'; 
+$role = $_SESSION['user']['role'] ?? 'store_admin';
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -29,7 +29,7 @@ $role = $_SESSION['user']['role'] ?? 'store_admin';
             <i class="bi bi-house-door"></i> صفحه اصلی
         </a>
 
-     <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
             <a href="manage-users.php" class="nav-link">
                 <i class="bi bi-people"></i> کاربران
             </a>
@@ -48,14 +48,22 @@ $role = $_SESSION['user']['role'] ?? 'store_admin';
             <i class="bi bi-basket"></i> سفارشات
         </a>
 
-         <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
+        <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
             <a href="manage-slider.php" class="nav-link">
                 <i class="bi bi-sliders"></i> اسلایدر
             </a>
         <?php endif; ?>
 
+        <a href="manage_articles.php" class="nav-link">
+            <i class="bi bi-book"></i> مقالات
+        </a>
+
         <a href="manage-comments.php" class="nav-link">
             <i class="bi bi-chat-left-dots"></i> کامنت‌ها
+        </a>
+
+        <a href="reporting.php" class="nav-link">
+            <i class="bi-bar-chart-line"></i> گزارش گیری
         </a>
     </nav>
 

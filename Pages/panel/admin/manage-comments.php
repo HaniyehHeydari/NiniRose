@@ -17,13 +17,14 @@ if ($user_role === 'super_admin') {
                             FROM comments c
                             JOIN products p ON c.product_id = p.id
                             JOIN users u ON c.user_id = u.id
+                            WHERE c.parent_id IS NULL
                             ORDER BY c.created_at DESC");
 } else {
     $stmt = $conn->prepare("SELECT c.*, p.name AS product_name, u.username AS username
                             FROM comments c
                             JOIN products p ON c.product_id = p.id
                             JOIN users u ON c.user_id = u.id
-                            WHERE p.store_id = ?
+                            WHERE p.store_id = ? AND c.parent_id IS NULL
                             ORDER BY c.created_at DESC");
     $stmt->bind_param("i", $store_id);
 }
@@ -69,7 +70,7 @@ $result = $stmt->get_result();
     <?php include('dashbord.php'); ?>
 
     <div class="main-content">
-        <h4 class="mb-4">مدیریت نظرات کاربران</h4>
+        <h4 class="mb-4">مدیریت نظرات</h4>
 
         <?php if ($result->num_rows > 0): ?>
             <div class="table-responsive">
@@ -84,15 +85,16 @@ $result = $stmt->get_result();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $i = 1; while ($row = $result->fetch_assoc()): ?>
+                        <?php $i = 1;
+                        while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td><?= htmlspecialchars($row['product_name']) ?></td>
                                 <td><?= htmlspecialchars($row['username']) ?></td>
                                 <td><?= htmlspecialchars($row['content']) ?></td>
                                 <td><?= htmlspecialchars($row['created_at']) ?></td>
                                 <td>
-                                    <a href="edit-comment.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary me-2">
-                                        <i class="bi bi-pencil-square"></i> ویرایش
+                                    <a href="comment-details.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-warning text-white">
+                                        <i class="bi bi-chat-dots"></i> جزئیات
                                     </a>
                                     <form method="POST" action="delete-comment.php" class="d-inline delete-form">
                                         <input type="hidden" name="comment_id" value="<?= $row['id'] ?>">
@@ -114,7 +116,7 @@ $result = $stmt->get_result();
     <script>
         // تایید حذف با SweetAlert
         document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function() {
                 Swal.fire({
                     title: 'آیا از حذف این نظر مطمئن هستید؟',
                     icon: 'warning',

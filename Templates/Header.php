@@ -124,11 +124,11 @@
                             <?php if (isset($_SESSION['user']['role'])): ?>
                                 <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                                     <li><a class="dropdown-item d-flex align-items-center"
-                                            href="<?php echo BASE_URL; ?>Pages/panel/admin/dashbord.php">
+                                            href="<?php echo BASE_URL; ?>Pages/panel/admin/admin-panel.php">
                                             <i class="bi bi-shield-lock me-2" style="font-size: 1.3rem;"></i> پنل ادمین</a></li>
                                 <?php elseif ($_SESSION['user']['role'] === 'store_admin'): ?>
                                     <li><a class="dropdown-item d-flex align-items-center"
-                                            href="<?php echo BASE_URL; ?>Pages/panel/admin/dashbord.php">
+                                            href="<?php echo BASE_URL; ?>Pages/panel/admin/admin-panel.php">
                                             <i class="bi bi-shop me-2" style="font-size: 1.3rem;"></i> فروشگاه</a></li>
                                 <?php endif; ?>
                             <?php endif; ?>

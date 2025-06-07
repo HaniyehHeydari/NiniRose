@@ -1,5 +1,7 @@
 <?php
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], ['super_admin', 'store_admin'])) {
     die("دسترسی غیرمجاز");
@@ -127,7 +129,7 @@ $result = $conn->query($sql);
                                 <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                                     <td><?= htmlspecialchars($row['store_name'] ?? 'نامشخص') ?></td>
                                 <?php endif; ?>
-                                <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <a href="edit-category.php?category_id=<?= $row['id'] ?>" class="btn btn-edit btn-sm me-2">
                                         <i class="bi bi-pencil-square"></i> ویرایش

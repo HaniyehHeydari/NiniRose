@@ -2,6 +2,8 @@
 session_start();
 include('../../config/db.php');
 include_once dirname(__DIR__) . '/../Config/config.php';
+require '../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) {
@@ -249,7 +251,7 @@ $stock = intval($product['stock'] ?? 0);
                                 <div class="mb-3">
                                     <strong><?= htmlspecialchars($comment['username']) ?></strong>
                                     <div class="text-muted"><?= nl2br(htmlspecialchars($comment['content'])) ?></div>
-                                    <div class="text-secondary small"><?= date('Y/m/d H:i', strtotime($comment['created_at'])) ?></div>
+                                    <div class="text-secondary small"><?= Jalalian::fromDateTime($comment['created_at'])->format('Y/m/d H:i') ?></div>
 
                                     <!-- ۲. دکمه ریپلای -->
                                     <button class="btn btn-sm text-primary mt-2 reply-btn rounded-pill" data-comment-id="<?= $comment_id ?>">
@@ -277,7 +279,7 @@ $stock = intval($product['stock'] ?? 0);
                                                 <div class="mb-3">
                                                     <strong><?= htmlspecialchars($reply['username']) ?></strong>
                                                     <div class="text-muted"><?= nl2br(htmlspecialchars($reply['content'])) ?></div>
-                                                    <div class="text-secondary small"><?= date('Y/m/d H:i', strtotime($reply['created_at'])) ?></div>
+                                                  <div class="text-secondary small"><?= Jalalian::fromDateTime($reply['created_at'])->format('Y/m/d H:i') ?></div>
                                                 </div>
                                             <?php endwhile; ?>
                                         </div>

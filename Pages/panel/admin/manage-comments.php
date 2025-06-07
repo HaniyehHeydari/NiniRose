@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 // بررسی نقش کاربر
 if (!isset($_SESSION['user'])) {
@@ -91,7 +93,7 @@ $result = $stmt->get_result();
                                 <td><?= htmlspecialchars($row['product_name']) ?></td>
                                 <td><?= htmlspecialchars($row['username']) ?></td>
                                 <td><?= htmlspecialchars($row['content']) ?></td>
-                                <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <a href="comment-details.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-warning text-white">
                                         <i class="bi bi-chat-dots"></i> جزئیات

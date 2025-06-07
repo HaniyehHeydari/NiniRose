@@ -1,6 +1,9 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+
+use Morilog\Jalali\Jalalian;
 
 // بررسی لاگین بودن کاربر
 if (!isset($_SESSION['user'])) {
@@ -114,7 +117,7 @@ $result = $stmt->get_result();
                                 <td><?= htmlspecialchars($row['storename']) ?></td>
                                 <td><?= $row['quantity'] ?></td>
                                 <td class="text-danger fw-bold"><?= number_format($row['total_price']) ?> تومان</td>
-                                <td><?= $row['created_at'] ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <?php
                                     switch ($row['status']) {

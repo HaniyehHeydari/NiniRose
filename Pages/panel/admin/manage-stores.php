@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 // فقط سوپر ادمین اجازه داره
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
@@ -89,10 +91,10 @@ $result = $conn->query($sql);
                                 <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['phone']) ?></td>
                                 <td><?= htmlspecialchars($row['email']) ?></td>
-                                <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <?php if (!empty($row['approved_at'])): ?>
-                                        <?= htmlspecialchars(date("Y-m-d H:i", strtotime($row['approved_at']))) ?>
+                                      <?= Jalalian::fromDateTime($row['approved_at'])->format('Y/m/d') ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>

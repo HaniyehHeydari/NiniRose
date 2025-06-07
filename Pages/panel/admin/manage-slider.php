@@ -1,5 +1,7 @@
 <?php
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
     die("دسترسی غیرمجاز");
@@ -117,7 +119,7 @@ $result = $conn->query("SELECT * FROM sliders ORDER BY created_at DESC");
                         <td>
                             <img src="../../../<?= htmlspecialchars($slide['image']) ?>" alt="Slide Image" style="max-height: 80px;" />
                         </td>
-                        <td><?= htmlspecialchars($slide['created_at']) ?></td>
+                        <td><?= Jalalian::fromDateTime($slide['created_at'])->format('Y/m/d'); ?></td>
                         <td>
                             <button class="btn btn-delete btn-sm" onclick="confirmDelete(<?= $slide['id'] ?>)">
                                 <i class="bi bi-trash-fill"></i> حذف

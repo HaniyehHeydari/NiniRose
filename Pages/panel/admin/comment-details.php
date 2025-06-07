@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 if (!isset($_SESSION['user'])) die("دسترسی غیرمجاز");
 
@@ -60,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SESSION['user']['role'] === 'supe
     <div class="card mb-4">
         <div class="card-header bg-danger text-white"><?= htmlspecialchars($comment['product_name']) ?> - توسط <?= htmlspecialchars($comment['username']) ?></div>
         <div class="card-body"><?= nl2br(htmlspecialchars($comment['content'])) ?></div>
-        <div class="card-footer text-muted"><?= $comment['created_at'] ?></div>
+        <div class="card-footer text-muted"><?= Jalalian::fromDateTime($comment['created_at'])->format('Y/m/d H:i');?></div>
     </div>
 
     <h5>پاسخ‌ها</h5>
@@ -69,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SESSION['user']['role'] === 'supe
             <div class="border rounded p-3 mb-2">
                 <strong><?= htmlspecialchars($reply['username']) ?>:</strong><br>
                 <?= nl2br(htmlspecialchars($reply['content'])) ?><br>
-                <small class="text-muted"><?= $reply['created_at'] ?></small>
+                <small class="text-muted"><?= Jalalian::fromDateTime($reply['created_at'])->format('Y/m/d H:i'); ?></small>
             </div>
         <?php endwhile ?>
     <?php else: ?>

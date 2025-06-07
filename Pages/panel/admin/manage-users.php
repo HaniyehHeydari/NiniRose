@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 // فقط سوپر ادمین دسترسی دارد
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
@@ -73,7 +75,7 @@ $result = $conn->query($sql);
                                 <td><?= htmlspecialchars($row['phone']) ?></td>
                                 <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['role']) ?></td>
-                                <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <form method="GET" action="edit-user.php" class="d-inline">
                                         <input type="hidden" name="user_id" value="<?= $row['id'] ?>">

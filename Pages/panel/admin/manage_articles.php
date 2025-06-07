@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('../../../config/db.php');
+require '../../../vendor/autoload.php';
+use Morilog\Jalali\Jalalian;
 
 // فقط ادمین‌ها دسترسی داشته باشند
 if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], ['super_admin', 'store_admin'])) {
@@ -153,7 +155,7 @@ try {
                                 <?php if ($user_role === 'super_admin'): ?>
                                     <td><?= htmlspecialchars($row['store_name'] ?? 'نامشخص') ?></td>
                                 <?php endif; ?>
-                                <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                <td><?= Jalalian::fromDateTime($row['created_at'])->format('Y/m/d'); ?></td>
                                 <td>
                                     <a href="edit_article.php?id=<?= $row['id'] ?>" class="btn btn-edit btn-sm me-2">
                                         <i class="bi bi-pencil-square"></i> ویرایش

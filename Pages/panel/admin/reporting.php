@@ -181,17 +181,17 @@ if (!empty($from_date_gregorian) || !empty($to_date_gregorian) || !empty($produc
             <div class="row">
                 <div class="col-md-3">
                     <label>از تاریخ:</label>
-                    <input type="text" name="from_date" id="from_date" class="form-control shadow-none border persian-date" 
+                    <input type="text" name="from_date" id="from_date" class="form-control shadow-none persian-date" style="border-color: #9FACB9;"
                            value="<?= htmlspecialchars($from_date_jalali ?? '') ?>">
                 </div>
                 <div class="col-md-3">
                     <label>تا تاریخ:</label>
-                    <input type="text" name="to_date" id="to_date" class="form-control shadow-none border persian-date" 
+                    <input type="text" name="to_date" id="to_date" class="form-control shadow-none persian-date" style="border-color: #9FACB9;"
                            value="<?= htmlspecialchars($to_date_jalali ?? '') ?>">
                 </div>
                 <div class="col-md-3">
                     <label>نام محصول:</label>
-                    <input type="text" name="product_name" id="product_name" class="form-control shadow-none border"
+                    <input type="text" name="product_name" id="product_name" class="form-control shadow-none" style="border-color: #9FACB9;"
                         value="<?= htmlspecialchars($product_name ?? '') ?>">
                 </div>
                 <div class="col-md-3 d-flex align-items-end">

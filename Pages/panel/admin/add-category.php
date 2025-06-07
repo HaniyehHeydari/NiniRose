@@ -75,15 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-4">
                         <label for="name" class="form-label">نام دسته‌بندی:</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                            <input type="text" class="form-control shadow-none border" id="name" name="name" required>
+                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-tag"></i></span>
+                            <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="name" name="name" required>
                         </div>
                     </div>
 
                     <?php if ($user_role === 'super_admin'): ?>
                         <div class="mb-4">
                             <label for="store_id" class="form-label">انتخاب فروشگاه:</label>
-                            <select name="store_id" id="store_id" class="form-select shadow-none border" required>
+                            <select name="store_id" id="store_id" class="form-select shadow-none" style="border-color: #9FACB9;" required>
                                 <option value="">انتخاب فروشگاه</option>
                                 <?php while ($store = $stores->fetch_assoc()): ?>
                                     <option value="<?= $store['id'] ?>"><?= htmlspecialchars($store['name']) ?></option>

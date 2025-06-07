@@ -96,8 +96,8 @@ if (!$user) {
                         <div class="mb-4">
                             <label for="username" class="form-label">نام کاربری:</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control shadow-none border" id="username" name="username"
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
                                     value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
                             </div>
                         </div>
@@ -106,8 +106,8 @@ if (!$user) {
                         <div class="mb-4">
                             <label for="email" class="form-label">ایمیل:</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" class="form-control shadow-none border" id="email" name="email"
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email"
                                     value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                             </div>
                         </div>
@@ -116,8 +116,8 @@ if (!$user) {
                         <div class="mb-4">
                             <label for="phone" class="form-label">شماره تماس:</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
-                                <input type="text" class="form-control shadow-none border" id="phone" name="phone"
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="phone" name="phone"
                                     value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
                             </div>
                         </div>
@@ -126,8 +126,8 @@ if (!$user) {
                         <div class="mb-5">
                             <label for="address" class="form-label">آدرس:</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                <textarea rows="1" class="form-control shadow-none border" id="address" name="address"
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
+                                <textarea rows="1" class="form-control shadow-none" style="border-color: #9FACB9;" id="address" name="address"
                                     ><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
                             </div>
                         </div>

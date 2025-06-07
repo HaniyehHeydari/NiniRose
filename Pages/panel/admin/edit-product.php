@@ -181,30 +181,30 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                         <div class="mb-3">
                             <label for="name" class="form-label">نام محصول</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-box"></i></span>
-                                <input type="text" id="name" name="name" class="form-control shadow-none border" required value="<?= htmlspecialchars($_POST['name'] ?? $product['name']) ?>">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-box"></i></span>
+                                <input type="text" id="name" name="name" class="form-control shadow-none" style="border-color: #9FACB9;" required value="<?= htmlspecialchars($_POST['name'] ?? $product['name']) ?>">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="product_description" class="form-label">توضیحات محصول</label>
-                            <textarea id="product_description" name="product_description" class="form-control shadow-none border" rows="3"><?= htmlspecialchars($_POST['product_description'] ?? $product['description']) ?></textarea>
+                            <label for="product_description" class="form-label" style="border-color: #9FACB9;">توضیحات محصول</label>
+                            <textarea id="product_description" name="product_description" class="form-control shadow-none" style="border-color: #9FACB9;" rows="3"><?= htmlspecialchars($_POST['product_description'] ?? $product['description']) ?></textarea>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="price" class="form-label">قیمت (تومان)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
-                                    <input type="number" id="price" name="price" step="0.01" min="0" class="form-control shadow-none border" required value="<?= htmlspecialchars($_POST['price'] ?? $product['price']) ?>">
+                                    <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-money-bill-wave"></i></span>
+                                    <input type="number" id="price" name="price" step="0.01" min="0" class="form-control shadow-none" style="border-color: #9FACB9;" required value="<?= htmlspecialchars($_POST['price'] ?? $product['price']) ?>">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="stock" class="form-label">موجودی</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
-                                    <input type="number" id="stock" name="stock" min="0" class="form-control shadow-none border" value="<?= htmlspecialchars($_POST['stock'] ?? $product['stock']) ?>">
+                                    <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-layer-group"></i></span>
+                                    <input type="number" id="stock" name="stock" min="0" class="form-control shadow-none" style="border-color: #9FACB9;" value="<?= htmlspecialchars($_POST['stock'] ?? $product['stock']) ?>">
                                 </div>
                             </div>
                         </div>
@@ -212,7 +212,7 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="category_id" class="form-label">دسته‌بندی</label>
-                                <select id="category_id" name="category_id" class="form-select shadow-none border">
+                                <select id="category_id" name="category_id" class="form-select shadow-none" style="border-color: #9FACB9;">
                                     <option value="">انتخاب دسته‌بندی</option>
                                     <?php while ($cat = $categories->fetch_assoc()): ?>
                                         <option value="<?= $cat['id'] ?>" <?= ((isset($_POST['category_id']) && $_POST['category_id'] == $cat['id']) || (!isset($_POST['category_id']) && $product['category_id'] == $cat['id'])) ? 'selected' : '' ?>>
@@ -224,7 +224,7 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
 
                             <div class="col-md-6">
                                 <label for="store_id" class="form-label">فروشگاه</label>
-                                <select id="store_id" name="store_id" class="form-select shadow-none border">
+                                <select id="store_id" name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;">
                                     <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" <?= ((isset($_POST['store_id']) && $_POST['store_id'] == $store['id']) || (!isset($_POST['store_id']) && $product['store_id'] == $store['id'])) ? 'selected' : '' ?>>
@@ -237,7 +237,7 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
 
                         <div class="mb-3">
                             <label for="image" class="form-label">آپلود تصویر جدید (در صورت نیاز)</label>
-                            <input type="file" id="image" name="image" accept="image/*" class="form-control shadow-none border" />
+                            <input type="file" id="image" name="image" accept="image/*" class="form-control shadow-none" style="border-color: #9FACB9;" />
                         </div>
 
                         <!-- بخش سایزها -->
@@ -246,11 +246,11 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                             <div id="size-container">
                                 <?php foreach ($unique_sizes as $index => $size): ?>
                                     <div class="input-group mb-2">
-                                        <span class="input-group-text">
+                                        <span class="input-group-text" style="border-color: #9FACB9;">
                                             <i class="fas fa-ruler"></i>
                                         </span>
-                                        <input type="text" name="sizes[]" class="form-control shadow-none border" value="<?= htmlspecialchars($size) ?>">
-                                        <button type="button" class="btn btn-outline-danger remove-size" data-index="<?= $index ?>">
+                                        <input type="text" name="sizes[]" class="form-control shadow-none" style="border-color: #9FACB9;" value="<?= htmlspecialchars($size) ?>">
+                                        <button type="button" class="btn btn-outline-danger remove-size" style="border-color: #9FACB9;" data-index="<?= $index ?>">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -267,10 +267,10 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                             <div id="color-container">
                                 <?php foreach ($unique_colors as $index => $color): ?>
                                     <div class="input-group mb-2">
-                                        <span class="input-group-text">
+                                        <span class="input-group-text" style="border-color: #9FACB9;">
                                             <i class="fas fa-palette"></i>
                                         </span>
-                                        <input type="text" name="colors[]" class="form-control shadow-none border" value="<?= htmlspecialchars($color) ?>">
+                                        <input type="text" name="colors[]" class="form-control shadow-none" style="border-color: #9FACB9;" value="<?= htmlspecialchars($color) ?>">
                                         <button type="button" class="btn btn-outline-danger remove-color" data-index="<?= $index ?>">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -284,8 +284,8 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
 
                         <!-- توضیحات سایز -->
                         <div class="mb-3">
-                            <label for="size_description" class="form-label">توضیحات سایز بندی</label>
-                            <textarea id="size_description" name="size_description" class="form-control shadow-none border" rows="3"><?= htmlspecialchars($_POST['size_description'] ?? $size_description) ?></textarea>
+                            <label for="size_description" class="form-label" style="border-color: #9FACB9;">توضیحات سایز بندی</label>
+                            <textarea id="size_description" name="size_description" class="form-control shadow-none" style="border-color: #9FACB9;" rows="3"><?= htmlspecialchars($_POST['size_description'] ?? $size_description) ?></textarea>
                         </div>
 
                         <div class="d-flex justify-content-center gap-3">

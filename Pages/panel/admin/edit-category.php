@@ -88,15 +88,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_category'])) {
                         <div class="mb-4">
                             <label for="name" class="form-label">نام دسته‌بندی:</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                                <input type="text" name="name" id="name" class="form-control shadow-none border" required value="<?= htmlspecialchars($category['name']) ?>">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-tag"></i></span>
+                                <input type="text" name="name" id="name" class="form-control shadow-none" style="border-color: #9FACB9;" required value="<?= htmlspecialchars($category['name']) ?>">
                             </div>
                         </div>
 
                         <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                             <div class="mb-4">
                                 <label for="store_id" class="form-label">انتخاب فروشگاه:</label>
-                                <select name="store_id" id="store_id" class="form-select shadow-none border" required>
+                                <select name="store_id" id="store_id" class="form-select shadow-none" style="border-color: #9FACB9;" required>
                                     <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" <?= $store['id'] == $category['store_id'] ? 'selected' : '' ?>>

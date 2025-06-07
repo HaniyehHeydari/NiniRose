@@ -28,22 +28,22 @@ if (!isset($_SESSION['user']['id']) || !isset($_SESSION['checkout_data'])) {
                 <form method="POST" action="process-payment.php">
                     <div class="mb-3">
                         <label class="form-label">شماره کارت</label>
-                        <input type="text" name="card_number" class="form-control rounded-4 shadow-none border" placeholder="**** **** **** ****" required>
+                        <input type="text" name="card_number" class="form-control bg-white rounded-4 shadow-none" placeholder="**** **** **** ****" style="border-color: #9FACB9;" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">تاریخ انقضا</label>
                         <div class="d-flex">
-                            <input type="text" name="exp_month" class="form-control me-2 rounded-4 shadow-none border" placeholder="ماه" required>
-                            <input type="text" name="exp_year" class="form-control rounded-4 shadow-none border" placeholder="سال" required>
+                            <input type="text" name="exp_month" class="form-control bg-white me-2 rounded-4 shadow-none" placeholder="ماه" style="border-color: #9FACB9;" required>
+                            <input type="text" name="exp_year" class="form-control bg-white rounded-4 shadow-none" placeholder="سال" style="border-color: #9FACB9;" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">کد CVV2</label>
-                        <input type="text" name="cvv" class="form-control rounded-4 shadow-none border" required>
+                        <input type="text" name="cvv" class="form-control bg-white rounded-4 shadow-none" style="border-color: #9FACB9;" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">رمز دوم</label>
-                        <input type="text" name="card_number" class="form-control rounded-4 shadow-none border" required>
+                        <input type="text" name="card_number" class="form-control bg-white rounded-4 shadow-none" style="border-color: #9FACB9;" required>
                     </div>
                     <button type="submit" class="btn btn-success w-100 rounded-4 py-2">پرداخت</button>
                 </form>

@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-4">
                             <label for="image" class="form-label">تصویر اسلاید</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-image"></i></span>
-                                <input type="file" name="image" id="image" accept="image/*" class="form-control shadow-none border" required />
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-image"></i></span>
+                                <input type="file" name="image" id="image" accept="image/*" class="form-control shadow-none" style="border-color: #9FACB9;" required />
                             </div>
                         </div>
 

@@ -37,6 +37,7 @@ if (!isset($_SESSION['user']['id'])) {
             height: 40px;
             font-size: 1rem;
             border-radius: 1rem;
+            background-color: white;
         }
 
         .form-control::placeholder {
@@ -56,34 +57,34 @@ if (!isset($_SESSION['user']['id'])) {
         }
 
         /* برای هماهنگی با فرم */
-    .select2-container .select2-selection--single {
-    height: 45px !important;
-    border-radius: 1rem !important;
-    border: 1px solid #ced4da !important;
-    font-size: 1rem !important;
-    text-align: right !important;
-    padding-right: 1rem !important;
-    display: flex;
-    align-items: center;
-}
+        .select2-container .select2-selection--single {
+            height: 40px !important;
+            border-radius: 0.5rem !important;
+            border: 1px solid #9FACB9 !important;
+            font-size: 1rem !important;
+            text-align: right !important;
+            padding-right: 1rem !important;
+            display: flex;
+            align-items: center;
+        }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #495057;
-    line-height: 45px !important;
-    font-size: 1rem;
-}
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #495057;
+            line-height: 45px !important;
+            font-size: 1rem;
+        }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 100% !important;
-    top: 50% !important;
-    transform: translateY(-50%);
-}
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100% !important;
+            top: 50% !important;
+            transform: translateY(-50%);
+        }
 
         .select2-results__options {
             max-height: 200px !important;
             overflow-y: auto !important;
         }
-
+      
     </style>
 </head>
 
@@ -108,37 +109,38 @@ if (!isset($_SESSION['user']['id'])) {
             <form method="POST" action="process-checkout.php" class="mt-4">
                 <div class="mb-3">
                     <label class="form-label">نام و نام خانوادگی</label>
-                    <input type="text" name="fullname" class="form-control rounded-4 shadow-none border" required>
+                    <input type="text" name="fullname" class="form-control bg-white rounded-3 shadow-none" placeholder="HaniyehHeydari" style="border-color: #9FACB9;" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">شماره تماس</label>
-                    <input type="text" name="phone" class="form-control rounded-4 shadow-none border" required>
+                    <input type="text" name="phone" class="form-control bg-white rounded-3 shadow-none" placeholder="0910***6224" style="border-color: #9FACB9;" required>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">استان</label>
-                        <select name="province" id="province" class="form-control rounded-4 shadow-none border"></select>
+                       <select name="province" id="province" class="form-control rounded-3 shadow-none" style="border-color: #9FACB9;"></select>
+
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">شهر</label>
-                        <select name="city" id="city" class="form-control rounded-4 shadow-none border"></select>
+                        <select name="city" id="city" class="form-control rounded-3 shadow-none" style="border-color: #9FACB9;"></select>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">آدرس کامل</label>
-                    <textarea name="address" class="form-control rounded-4 shadow-none border" rows="4" required></textarea>
+                    <textarea name="address" class="form-control rounded-3 shadow-none" rows="4" placeholder="مازندران, نور ..." style="border-color: #9FACB9;" required></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">کد پستی</label>
-                    <input type="text" name="postal_code" class="form-control rounded-4 shadow-none border" required>
+                    <input type="text" name="postal_code" class="form-control bg-white rounded-3 shadow-none" placeholder="4641254871" style="border-color: #9FACB9;" required>
                 </div>
 
-                <button type="submit" class="btn btn-success rounded-4 w-100 py-2 mt-3">انتقال به صفحه پرداخت</button>
+                <button type="submit" class="btn btn-success rounded-3 w-100 py-2 mt-3">انتقال به صفحه پرداخت</button>
             </form>
         </div>
     </div>

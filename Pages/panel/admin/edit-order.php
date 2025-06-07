@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form method="post">
                             <div class="mb-3">
                                 <label class="form-label">وضعیت سفارش</label>
-                                <select name="status" class="form-select shadow-none border" required>
+                                <select name="status" class="form-select shadow-none" style="border-color: #9FACB9;" required>
                                     <option value="0" <?= $order['status'] == 0 ? 'selected' : '' ?>>در حال پردازش</option>
                                     <option value="1" <?= $order['status'] == 1 ? 'selected' : '' ?>>در حال ارسال</option>
                                     <option value="2" <?= $order['status'] == 2 ? 'selected' : '' ?>>عدم ارسال</option>

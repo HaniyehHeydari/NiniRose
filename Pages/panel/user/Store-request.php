@@ -32,17 +32,17 @@ unset($_SESSION['alert']); // حذف پیام پس از نمایش
             <form action="submit-request.php" method="POST">
                 <div class="mb-3">
                     <label for="store_name" class="form-label">نام مغازه</label>
-                    <input type="text" name="name" id="store_name" class="form-control rounded-3 shadow-none border" required>
+                    <input type="text" name="name" id="store_name" class="form-control rounded-3 shadow-none" style="border-color: #9FACB9;" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="address" class="form-label">آدرس مغازه</label>
-                    <textarea name="address" id="address" rows="2" class="form-control rounded-3 shadow-none border" required></textarea>
+                    <textarea name="address" id="address" rows="2" class="form-control rounded-3 shadow-none " style="border-color: #9FACB9;" required></textarea>
                 </div>
 
                 <div class="mb-4">
                     <label for="phone" class="form-label">شماره تماس</label>
-                    <input type="text" name="phone" id="phone" class="form-control rounded-3 shadow-none border" required>
+                    <input type="text" name="phone" id="phone" class="form-control rounded-3 shadow-none " style="border-color: #9FACB9;" required>
                 </div>
 
                 <div class="d-flex justify-content-center gap-5">

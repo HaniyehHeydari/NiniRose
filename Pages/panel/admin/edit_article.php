@@ -76,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // آپلود تصویر جدید
-        $upload_dir = '../../../uploads/articles/';
+        $upload_dir = '../../../Public/uploads/articles/';
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
         $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         $image_name = uniqid() . '.' . $ext;
-        $image_path = 'uploads/articles/' . $image_name;
+        $image_path = 'Public/uploads/articles/' . $image_name;
         move_uploaded_file($_FILES['image']['tmp_name'], '../../../' . $image_path);
     }
 
@@ -134,21 +134,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="mb-3">
                             <label class="form-label">عنوان مقاله</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-heading"></i></span>
-                                <input type="text" name="title" class="form-control shadow-none border" required 
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-heading"></i></span>
+                                <input type="text" name="title" class="form-control shadow-none" style="border-color: #9FACB9;" required 
                                        value="<?= htmlspecialchars($article['title']) ?>">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">محتوای مقاله</label>
-                            <textarea name="content" rows="6" class="form-control shadow-none border"><?= htmlspecialchars($article['content']) ?></textarea>
+                            <textarea name="content" rows="6" class="form-control shadow-none" style="border-color: #9FACB9;"><?= htmlspecialchars($article['content']) ?></textarea>
                         </div>
 
                         <?php if ($user_role === 'super_admin'): ?>
                             <div class="mb-3">
                                 <label class="form-label">فروشگاه</label>
-                                <select name="store_id" class="form-select shadow-none border" required>
+                                <select name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;" required>
                                     <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores_query->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" 
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="mb-3">
                             <label class="form-label">تصویر مقاله</label>
-                            <input type="file" name="image" accept="image/*" class="form-control shadow-none border" />
+                            <input type="file" name="image" accept="image/*" class="form-control shadow-none" style="border-color: #9FACB9;" />
                             <?php if ($article['image'] && file_exists('../../../' . $article['image'])): ?>
                                 <div class="mt-2">
                                     <img src="../../../<?= $article['image'] ?>" class="img-thumbnail" style="max-height: 150px;">

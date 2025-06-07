@@ -76,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-4">
                         <label for="currentPassword" class="form-label">رمز عبور فعلی:</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none border" id="currentPassword" name="currentPassword" required>
+                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="currentPassword" name="currentPassword" required>
                         </div>
                         <?php if (isset($errors['currentPassword'])): ?>
                             <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['currentPassword']); ?></div>
@@ -87,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-4">
                         <label for="newPassword" class="form-label">رمز عبور جدید:</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none border" id="newPassword" name="newPassword" required>
+                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="newPassword" name="newPassword" required>
                         </div>
                         <?php if (isset($errors['newPassword'])): ?>
                             <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['newPassword']); ?></div>
@@ -98,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-5">
                         <label for="confirmPassword" class="form-label">تکرار رمز عبور جدید:</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none border" id="confirmPassword" name="confirmPassword" required>
+                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="confirmPassword" name="confirmPassword" required>
                         </div>
                         <?php if (isset($errors['confirmPassword'])): ?>
                             <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['confirmPassword']); ?></div>

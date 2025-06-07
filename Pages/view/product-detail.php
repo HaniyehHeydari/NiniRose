@@ -3,6 +3,7 @@ session_start();
 include('../../config/db.php');
 include_once dirname(__DIR__) . '/../Config/config.php';
 require '../../vendor/autoload.php';
+
 use Morilog\Jalali\Jalalian;
 
 $id = intval($_GET['id'] ?? 0);
@@ -109,6 +110,50 @@ $stock = intval($product['stock'] ?? 0);
         .reply-form-container {
             margin-top: 0.5rem;
         }
+
+        /* تب‌ها */
+        .nav-tabs .nav-link {
+            border: none !important;
+            color: #000 !important;
+            /* رنگ متن مشکی */
+            padding: 10px 20px;
+            margin-bottom: -1px;
+            background-color: transparent !important;
+            border-radius: 0;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border: none !important;
+            color: #000 !important;
+            /* رنگ متن مشکی هنگام هاور */
+            background-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* تب فعال */
+        .nav-tabs .nav-link.active {
+            border: none !important;
+            color: #dc3545 !important;
+            /* رنگ متن قرمز */
+            font-weight: bold;
+            background-color: transparent !important;
+            position: relative;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* خط پایین قرمز برای تب فعال */
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background-color: #dc3545;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -166,7 +211,6 @@ $stock = intval($product['stock'] ?? 0);
                             </div>
                             <div class="d-flex align-items-center gap-3 mb-3">
                                 <div>
-                                    <label>تعداد:</label>
                                     <div class="input-group" style="width: 120px;">
                                         <button class="btn border btn-outline-secondary minus-btn bg-white" type="button">-</button>
                                         <input type="number" name="quantity" id="quantity" class="form-control border bg-white text-center quantity-input" value="1" min="1" max="<?= $stock ?>">
@@ -279,7 +323,7 @@ $stock = intval($product['stock'] ?? 0);
                                                 <div class="mb-3">
                                                     <strong><?= htmlspecialchars($reply['username']) ?></strong>
                                                     <div class="text-muted"><?= nl2br(htmlspecialchars($reply['content'])) ?></div>
-                                                  <div class="text-secondary small"><?= Jalalian::fromDateTime($reply['created_at'])->format('Y/m/d H:i') ?></div>
+                                                    <div class="text-secondary small"><?= Jalalian::fromDateTime($reply['created_at'])->format('Y/m/d H:i') ?></div>
                                                 </div>
                                             <?php endwhile; ?>
                                         </div>

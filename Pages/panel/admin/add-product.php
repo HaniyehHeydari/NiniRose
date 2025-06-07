@@ -144,37 +144,37 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                         <div class="mb-3">
                             <label class="form-label">نام محصول</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-box"></i></span>
-                                <input type="text" name="name" class="form-control shadow-none border" required value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-box"></i></span>
+                                <input type="text" name="name" class="form-control shadow-none" style="border-color: #9FACB9;" required value="<?= htmlspecialchars($_POST['name'] ?? '') ?>">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">توضیحات</label>
-                            <textarea name="description" class="form-control shadow-none border" rows="3"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                            <label class="form-label" style="border-color: #9FACB9;">توضیحات</label>
+                            <textarea name="description" class="form-control shadow-none" style="border-color: #9FACB9;" rows="3"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">قیمت (تومان)</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
-                                    <input type="number" name="price" step="0.01" min="0" class="form-control shadow-none border" required value="<?= htmlspecialchars($_POST['price'] ?? '') ?>">
+                                    <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-money-bill-wave"></i></span>
+                                    <input type="number" name="price" step="0.01" min="0" class="form-control shadow-none" style="border-color: #9FACB9;" required value="<?= htmlspecialchars($_POST['price'] ?? '') ?>">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">موجودی</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
-                                    <input type="number" name="stock" min="0" class="form-control shadow-none border" value="<?= htmlspecialchars($_POST['stock'] ?? '0') ?>">
+                                    <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-layer-group"></i></span>
+                                    <input type="number" name="stock" min="0" class="form-control shadow-none" style="border-color: #9FACB9;" value="<?= htmlspecialchars($_POST['stock'] ?? '0') ?>">
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">دسته‌بندی</label>
-                            <select name="category_id" class="form-select shadow-none border">
+                            <select name="category_id" class="form-select shadow-none" style="border-color: #9FACB9;">
                                 <option value="">انتخاب دسته‌بندی</option>
                                 <?php while ($cat = $categories->fetch_assoc()): ?>
                                     <option value="<?= $cat['id'] ?>" <?= (isset($_POST['category_id']) && $_POST['category_id'] == $cat['id']) ? 'selected' : '' ?>>
@@ -187,7 +187,7 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                         <?php if ($user_role === 'super_admin'): ?>
                             <div class="mb-3">
                                 <label class="form-label">فروشگاه</label>
-                                <select name="store_id" class="form-select shadow-none border">
+                                <select name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;">
                                     <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" <?= (isset($_POST['store_id']) && $_POST['store_id'] == $store['id']) ? 'selected' : '' ?>>
@@ -204,7 +204,7 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                             <label class="form-label">سایزهای محصول</label>
                             <div id="sizeContainer">
                                 <div class="input-group mb-2">
-                                    <input type="text" name="sizes[]" class="form-control shadow-none border" placeholder="مثلاً: S یا 3-6 ماه" />
+                                    <input type="text" name="sizes[]" class="form-control shadow-none" style="border-color: #9FACB9;" placeholder="مثلاً: S یا 3-6 ماه" />
                                     <button type="button" class="btn btn-outline-secondary remove-size">-</button>
                                 </div>
                             </div>
@@ -214,19 +214,19 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                         <div class="mb-3">
                             <label class="form-label">رنگ‌های موجود</label>
                             <div id="colors-wrapper">
-                                <input type="text" name="colors[]" class="form-control shadow-none border mb-2" placeholder="مثلاً: قرمز" />
+                                <input type="text" name="colors[]" class="form-control shadow-none mb-2" style="border-color: #9FACB9;" placeholder="مثلاً: قرمز" />
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addColorInput()">افزودن رنگ جدید</button>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">توضیحات سایز بندی</label>
-                            <textarea name="size_description" class="form-control shadow-none border" rows="3"><?= htmlspecialchars($_POST['size_description'] ?? '') ?></textarea>
+                            <label class="form-label" style="border-color: #9FACB9;">توضیحات سایز بندی</label>
+                            <textarea name="size_description" class="form-control shadow-none" style="border-color: #9FACB9;" rows="3"><?= htmlspecialchars($_POST['size_description'] ?? '') ?></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">تصویر محصول</label>
-                            <input type="file" name="image" accept="image/*" class="form-control shadow-none border" />
+                            <label class="form-label" style="border-color: #9FACB9;">تصویر محصول</label>
+                            <input type="file" name="image" accept="image/*" class="form-control shadow-none" style="border-color: #9FACB9;" />
                         </div>
 
                         <div class="d-flex justify-content-center gap-3">

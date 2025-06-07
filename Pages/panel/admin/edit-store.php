@@ -75,24 +75,24 @@ $store = $result->fetch_assoc();
                         <div class="mb-4">
                             <label for="store_name" class="form-label">نام فروشگاه</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-store"></i></span>
-                                <input type="text" class="form-control shadow-none border" id="store_name" name="store_name" value="<?= htmlspecialchars($store['name']) ?>" required>
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-store"></i></span>
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="store_name" name="store_name" value="<?= htmlspecialchars($store['name']) ?>" required>
                             </div>
                         </div>
 
                         <div class="mb-4">
                             <label for="store_address" class="form-label">آدرس</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                <input type="text" class="form-control shadow-none border" id="store_address" name="store_address" value="<?= htmlspecialchars($store['address']) ?>" required>
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="store_address" name="store_address" value="<?= htmlspecialchars($store['address']) ?>" required>
                             </div>
                         </div>
 
                         <div class="mb-5">
                             <label for="store_phone" class="form-label">شماره تماس</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
-                                <input type="text" class="form-control shadow-none border" id="store_phone" name="store_phone" value="<?= htmlspecialchars($store['phone']) ?>" required>
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="store_phone" name="store_phone" value="<?= htmlspecialchars($store['phone']) ?>" required>
                             </div>
                         </div>
 

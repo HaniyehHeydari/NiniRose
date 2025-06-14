@@ -76,7 +76,7 @@ if (!$user) {
                         <div class="input-group">
                             <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-user"></i></span>
                             <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
-                                   value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
+                                   value="<?= htmlspecialchars($user['username'] ?? '') ?>" >
                         </div>
                     </div>
 
@@ -86,7 +86,7 @@ if (!$user) {
                         <div class="input-group">
                             <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-envelope"></i></span>
                             <input type="email" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email" 
-                                   value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+                                   value="<?= htmlspecialchars($user['email'] ?? '') ?>" >
                         </div>
                     </div>
 
@@ -96,7 +96,7 @@ if (!$user) {
                         <div class="input-group">
                             <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
                             <input type="tel" class="form-control shadow-none" style="border-color: #9FACB9;" id="phone" name="phone"
-                                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+                                   value="<?= htmlspecialchars($user['phone'] ?? '') ?>" >
                         </div>
                     </div>
 
@@ -106,7 +106,7 @@ if (!$user) {
                         <div class="input-group">
                             <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
                             <textarea rows="1" class="form-control shadow-none" style="border-color: #9FACB9;" id="address" name="address"
-                                      placeholder="آدرس خود را وارد کنید" required><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                                      placeholder="آدرس خود را وارد کنید"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
                         </div>
                     </div>
 
@@ -127,7 +127,16 @@ if (!$user) {
         icon: '<?= $alert['type'] ?>',
         title: '<?= $alert['type'] === 'success' ? 'موفقیت' : 'خطا' ?>',
         text: '<?= $alert['message'] ?>',
-        confirmButtonText: 'باشه'
+        showConfirmButton: false, // این خط دکمه تایید را مخفی می‌کند
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    }).then(() => {
+        <?php if ($alert['type'] === 'success'): ?>
+            window.location.href = '../../view/MainPage.php';
+        <?php endif; ?>
     });
 </script>
 <?php endif; ?>

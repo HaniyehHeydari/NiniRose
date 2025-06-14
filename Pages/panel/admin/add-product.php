@@ -61,29 +61,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $product_id = $stmt->insert_id;
 
             $detail_stmt = $conn->prepare("INSERT INTO detail (product_id, size, color, description) VALUES (?, ?, ?, ?)");
-            $detail_stmt->bind_param("isss", $product_id, $size_val, $color_val, $size_description);
+            $detail_stmt->bind_param("isss", $product_id, $size_val, $color_val, $desc_val);
 
+            $has_combination = false; // بررسی حداقل یک مقدار
 
-            foreach ($sizes as $size) {
-                $trimmed_size = trim($size);
-                if ($trimmed_size !== '') {
-                    $size_val = $trimmed_size;
+            // اگر سایزها وجود دارند
+            if (!empty($sizes)) {
+                foreach ($sizes as $size) {
+                    $size_val = trim($size);
+                    if ($size_val === '') $size_val = null;
 
-                    if (empty($colors)) {
-                        $color_val = null;
-                        $detail_stmt->execute();
-                    } else {
+                    // اگر رنگ هم وجود دارد، ترکیب سایز و رنگ ذخیره شود
+                    if (!empty($colors)) {
                         foreach ($colors as $color) {
-                            $trimmed_color = trim($color);
-                            if ($trimmed_color !== '') {
-                                $color_val = $trimmed_color;
+                            $color_val = trim($color);
+                            if ($color_val === '') $color_val = null;
+
+                            // اگر توضیح سایز خالی بود، null شود
+                            $desc_val = ($size_description !== '') ? $size_description : null;
+
+                            // اگر حداقل یکی از فیلدها پر بود، ذخیره شود
+                            if ($size_val || $color_val || $desc_val) {
                                 $detail_stmt->execute();
+                                $has_combination = true;
                             }
+                        }
+                    } else {
+                        // فقط سایز بدون رنگ
+                        $color_val = null;
+                        $desc_val = ($size_description !== '') ? $size_description : null;
+
+                        if ($size_val || $desc_val) {
+                            $detail_stmt->execute();
+                            $has_combination = true;
                         }
                     }
                 }
+            } elseif (!empty($colors)) {
+                // فقط رنگ بدون سایز
+                foreach ($colors as $color) {
+                    $color_val = trim($color);
+                    if ($color_val === '') $color_val = null;
+
+                    $size_val = null;
+                    $desc_val = ($size_description !== '') ? $size_description : null;
+
+                    if ($color_val || $desc_val) {
+                        $detail_stmt->execute();
+                        $has_combination = true;
+                    }
+                }
+            } elseif ($size_description !== '') {
+                // فقط توضیح بدون سایز و رنگ
+                $size_val = null;
+                $color_val = null;
+                $desc_val = $size_description;
+
+                $detail_stmt->execute();
+                $has_combination = true;
             }
+
             $detail_stmt->close();
+
 
             $_SESSION['success'] = "محصول جدید با موفقیت ایجاد شد.";
             header("Location: manage-products.php");
@@ -205,18 +244,21 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                             <div id="sizeContainer">
                                 <div class="input-group mb-2">
                                     <input type="text" name="sizes[]" class="form-control shadow-none" style="border-color: #9FACB9;" placeholder="مثلاً: S یا 3-6 ماه" />
-                                    <button type="button" class="btn btn-outline-secondary remove-size">-</button>
+                                    <button type="button" class="btn btn-outline-secondary remove-size" style="border-color: #9FACB9;">-</button>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-outline-primary" id="addSizeBtn">افزودن سایز</button>
+                            <button type="button" class="btn btn-sm btn-outline-success" id="addSizeBtn">افزودن سایز</button>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">رنگ‌های موجود</label>
                             <div id="colors-wrapper">
-                                <input type="text" name="colors[]" class="form-control shadow-none mb-2" style="border-color: #9FACB9;" placeholder="مثلاً: قرمز" />
+                                <div class="input-group mb-2">
+                                    <input type="text" name="colors[]" class="form-control shadow-none" style="border-color: #9FACB9;" placeholder="مثلاً: قرمز" />
+                                    <button type="button" class="btn btn-outline-secondary remove-size" style="border-color: #9FACB9;">-</button>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addColorInput()">افزودن رنگ جدید</button>
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="addColorInput()">افزودن رنگ جدید</button>
                         </div>
 
                         <div class="mb-3">

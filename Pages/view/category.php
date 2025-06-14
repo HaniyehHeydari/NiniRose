@@ -69,36 +69,32 @@ $products_stmt->close();
 
         <!-- لیست محصولات -->
         <h3 class="mb-4"><?= htmlspecialchars($category['name']) ?></h3>
-        <div id="productScrollCategory" class="d-flex overflow-auto gap-3 pb-3 pt-3">
-            <?php if (!empty($products)): ?>
+        <?php if (!empty($products)): ?>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                 <?php foreach ($products as $product): ?>
-                    <div class="card product-card shadow-sm" style="width: 230px; flex-shrink: 0;">
-                        <img src="../../<?= htmlspecialchars($product['image']) ?>"
-                            class="card-img-top product-image"
-                            alt="<?= htmlspecialchars($product['name']) ?>">
-                        <div class="card-body">
-                            <h6 class="card-title text-start hover-pointer">
-                                <?= htmlspecialchars($product['name']) ?>
-                            </h6>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted">
-                                    <?= number_format($product['price']) ?> تومان
-                                </span>
-                                <a href="product-detail.php?id=<?= $product['id'] ?>"
-                                    class="btn btn-outline-success btn-sm">
-                                    مشاهده
-                                </a>
+                    <div class="col">
+                        <div class="card product-card shadow-sm h-100">
+                            <img src="../../<?= htmlspecialchars($product['image']) ?>"
+                                class="card-img-top product-image"
+                                alt="<?= htmlspecialchars($product['name']) ?>">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title text-start hover-pointer"><?= htmlspecialchars($product['name']) ?></h6>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="text-muted"><?= number_format($product['price']) ?> تومان</span>
+                                    <a href="product-detail.php?id=<?= $product['id'] ?>" class="btn btn-outline-success btn-sm">
+                                        مشاهده
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-            <?php else: ?>
-
-                <div class="alert alert-info text-center">
-                    هیچ محصولی در این دسته‌بندی یافت نشد.
-                </div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-info text-center">
+                هیچ محصولی در این دسته‌بندی یافت نشد.
+            </div>
+        <?php endif; ?>
     </div>
 
     <?php include('../../Templates/Footer.php') ?>

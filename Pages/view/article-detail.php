@@ -1,6 +1,9 @@
 <?php
 include('../../config/db.php');
 include_once dirname(__DIR__) . '/../Config/config.php';
+require '../../vendor/autoload.php';
+
+use Morilog\Jalali\Jalalian;
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     die('شناسه مقاله نامعتبر است.');
@@ -8,7 +11,14 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $article_id = intval($_GET['id']);
 
-$stmt = $conn->prepare("SELECT a.*, u.username AS author_name FROM articles a LEFT JOIN users u ON a.author_id = u.id WHERE a.id = ?");
+// ابتدا سعی می‌کنیم با store_id ارتباط برقرار کنیم
+$stmt = $conn->prepare("SELECT a.*, s.name AS store_name FROM articles a LEFT JOIN stores s ON a.store_id = s.id WHERE a.id = ?");
+
+// اگر خطا داد، با author_id امتحان می‌کنیم
+if (!$stmt) {
+    $stmt = $conn->prepare("SELECT a.*, s.name AS store_name FROM articles a LEFT JOIN stores s ON a.author_id = s.id WHERE a.id = ?");
+}
+
 $stmt->bind_param("i", $article_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -21,6 +31,7 @@ if (!$article) {
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8" />
     <title><?= htmlspecialchars($article['title']) ?> | مقاله</title>
@@ -28,6 +39,7 @@ if (!$article) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 </head>
+
 <body>
     <?php include('../../Templates/Header.php') ?>
 
@@ -41,16 +53,20 @@ if (!$article) {
 
                     <div class="card-body">
                         <h3 class="card-title mb-3"><?= htmlspecialchars($article['title']) ?></h3>
-                        <p class="text-muted mb-1">
-                            تاریخ انتشار: <?= date('Y/m/d H:i', strtotime($article['created_at'])) ?>
-                            <?php if ($article['author_name']): ?>
-                                | نویسنده: <?= htmlspecialchars($article['author_name']) ?>
-                            <?php endif; ?>
-                        </p>
-                        <hr>
+
                         <div class="card-text" style="line-height: 2;">
                             <?= nl2br($article['content']) ?>
                         </div>
+                        <hr>
+                        <p class="text-muted mb-1">
+                            <?php if ($article['store_name']): ?>
+                                فروشگاه: <?= htmlspecialchars($article['store_name']) ?>
+                            <?php endif; ?>
+                        </p>
+                        <p class="text-muted mb-1">
+                            تاریخ انتشار: <?= Jalalian::fromDateTime($article['created_at'])->format('Y/m/d H:i'); ?>
+                        </p>
+
                     </div>
                 </div>
             </div>
@@ -60,4 +76,5 @@ if (!$article) {
     <?php include('../../Templates/Footer.php') ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

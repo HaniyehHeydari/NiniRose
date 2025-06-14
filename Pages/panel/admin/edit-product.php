@@ -256,7 +256,7 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <button type="button" id="add-size" class="btn btn-sm btn-outline-primary mt-2">
+                            <button type="button" id="add-size" class="btn btn-sm btn-outline-success mt-2">
                                 <i class="fas fa-plus"></i> افزودن سایز جدید
                             </button>
                         </div>
@@ -271,13 +271,13 @@ $stores = $conn->query("SELECT id, name FROM stores ORDER BY name");
                                             <i class="fas fa-palette"></i>
                                         </span>
                                         <input type="text" name="colors[]" class="form-control shadow-none" style="border-color: #9FACB9;" value="<?= htmlspecialchars($color) ?>">
-                                        <button type="button" class="btn btn-outline-danger remove-color" data-index="<?= $index ?>">
+                                        <button type="button" class="btn btn-outline-danger remove-color" style="border-color: #9FACB9;" data-index="<?= $index ?>">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <button type="button" id="add-color" class="btn btn-sm btn-outline-primary mt-2">
+                            <button type="button" id="add-color" class="btn btn-sm btn-outline-success mt-2">
                                 <i class="fas fa-plus"></i> افزودن رنگ جدید
                             </button>
                         </div>

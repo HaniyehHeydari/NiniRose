@@ -130,6 +130,44 @@ $categories = $categories_result->fetch_all(MYSQLI_ASSOC);
             top: 53px;
             left: -50px;
         }
+
+
+        .carousel-indicators button {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            border: none;
+            margin: 0 5px;
+        }
+
+        .carousel-indicators .active {
+            background-color: #198754;
+            width: 12px;
+            height: 12px;
+        }
+
+        /* استایل بولت‌های اسلایدر */
+        .carousel-indicators {
+            margin-bottom: 0;
+        }
+
+        .carousel-indicators button {
+            width: 12px;
+            height: 12px;
+            border: none;
+            background-color: #adb5bd;
+            opacity: 1;
+            margin: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicators .active {
+            background-color: #198754;
+            width: 12px;
+            height: 12px;
+            transform: none;
+        }
     </style>
 </head>
 
@@ -165,9 +203,10 @@ $categories = $categories_result->fetch_all(MYSQLI_ASSOC);
 
         <!-- اسلایدر -->
         <?php if ($slider_result && $slider_result->num_rows > 0): ?>
-            <div id="mainCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+            <div id="mainCarousel" class="carousel slide mb-5 position-relative" data-bs-ride="carousel">
                 <div class="carousel-inner rounded-4 shadow">
                     <?php
+                    $slider_result->data_seek(0);
                     $index = 0;
                     while ($slide = $slider_result->fetch_assoc()):
                         $active = $index === 0 ? 'active' : '';
@@ -177,6 +216,22 @@ $categories = $categories_result->fetch_all(MYSQLI_ASSOC);
                         </div>
                     <?php $index++;
                     endwhile; ?>
+                </div>
+
+                <!-- بولت‌های دایره‌ای -->
+                <div class="carousel-indicators position-absolute" style="bottom: -50px;">
+                    <?php
+                    $slider_result->data_seek(0);
+                    for ($i = 0; $i < $slider_result->num_rows; $i++):
+                        $active = $i === 0 ? 'active' : '';
+                    ?>
+                        <button type="button"
+                            data-bs-target="#mainCarousel"
+                            data-bs-slide-to="<?= $i ?>"
+                            class="<?= $active ?> rounded-circle bg-danger"
+                            style="width: 8px; height: 8px;"
+                            aria-label="اسلاید <?= $i + 1 ?>"></button>
+                    <?php endfor; ?>
                 </div>
 
                 <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
@@ -193,37 +248,28 @@ $categories = $categories_result->fetch_all(MYSQLI_ASSOC);
         <?php endif; ?>
 
         <div class="container-fluid my-5 px-4">
+    <h4 class="text-start mb-4">جدیدترین محصولات</h4>
 
-            <h4 class="text-start mb-4">جدیدترین محصولات</h4>
-
-            <div class="p-3 rounded-4 bg-danger text-white">
-
-                <div class="product-scroll-wrapper">
-                    <button class="scroll-btn prev" onclick="scrollProducts(-1)">
-                        <i class="bi bi-chevron-right fs-5"></i>
-                    </button>
-                    <button class="scroll-btn next" onclick="scrollProducts(1)">
-                        <i class="bi bi-chevron-left fs-5"></i>
-                    </button>
-
-                    <div id="productScroll" class="d-flex overflow-auto gap-3 p-2">
-                        <?php while ($product = $product_result->fetch_assoc()): ?>
-                            <div class="card product-card shadow-sm">
-                                <img src="../../<?= htmlspecialchars($product['image']) ?>" class="card-img-top product-image" alt="<?= htmlspecialchars($product['name']) ?>">
-                                <div class="card-body">
-                                    <h6 class="card-title text-start hover-pointer"><?= htmlspecialchars($product['name']) ?></h6>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-muted"><?= number_format($product['price']) ?> تومان</span>
-                                        <a href="product-detail.php?id=<?= $product['id'] ?>" class="btn btn-outline-success btn-sm">مشاهده</a>
-                                    </div>
-                                </div>
+    <div class="p-3 rounded-4 text-white">
+        <div id="productScroll" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+            <?php while ($product = $product_result->fetch_assoc()): ?>
+                <div class="col">
+                    <div class="card product-card shadow-sm h-100">
+                        <img src="../../<?= htmlspecialchars($product['image']) ?>" class="card-img-top product-image" alt="<?= htmlspecialchars($product['name']) ?>">
+                        <div class="card-body">
+                            <h6 class="card-title text-start hover-pointer"><?= htmlspecialchars($product['name']) ?></h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted"><?= number_format($product['price']) ?> تومان</span>
+                                <a href="product-detail.php?id=<?= $product['id'] ?>" class="btn btn-outline-success btn-sm">مشاهده</a>
                             </div>
-                        <?php endwhile; ?>
+                        </div>
                     </div>
                 </div>
-
-            </div>
+            <?php endwhile; ?>
         </div>
+    </div>
+</div>
+
 
 
         <!-- نمایش مقالات -->

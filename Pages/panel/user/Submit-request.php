@@ -3,14 +3,14 @@ session_start();
 include('../../../config/db.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $admin_id = $_SESSION['user']['id']?? null;
+    $admin_id = $_SESSION['user']['id'] ?? null;
 
     if (!$admin_id) {
         $_SESSION['alert'] = [
             'type' => 'error',
-            'message' => 'شما لاگین نیستید.'
+            'message' => 'برای ارسال درخواست، ابتدا وارد حساب کاربری شوید.'
         ];
-        header('Location: store-request.php');
+        header('Location: ../../auth/login.php'); // مسیر صحیح فایل لاگین
         exit;
     }
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $conn->close();
-    header('Location: store-request.php');
+    header('Location: ../../view/MainPagephp');
     exit;
 }
 ?>

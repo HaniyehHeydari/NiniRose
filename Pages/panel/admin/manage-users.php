@@ -51,7 +51,12 @@ $result = $conn->query($sql);
     <?php include('dashbord.php'); ?>
 
     <div class="main-content">
-        <h4 class="mb-4">مدیریت کاربران</h4>
+       <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>مدیریت کاربران</h4>
+            <a href="add-user.php" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> افزودن کاربر جدید
+            </a>
+        </div>
 
         <?php if ($result->num_rows > 0): ?>
             <div class="table-responsive">

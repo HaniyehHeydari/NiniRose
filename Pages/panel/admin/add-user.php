@@ -2,32 +2,20 @@
 session_start();
 include('../../../config/db.php');
 
-// بررسی ورود کاربر
-if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
-    header("Location: login.php");
-    exit();
+// فقط سوپر ادمین دسترسی دارد
+if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
+    die("دسترسی غیرمجاز");
 }
-
-$user_id = $_SESSION['user']['id'];
 $alert = null;
 $errors = [];
 
-// دریافت اطلاعات فعلی کاربر
-$sql = "SELECT username, email, phone, address FROM users WHERE id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$stmt->close();
-
-if (!$user) {
-    $alert = ['type' => 'error', 'message' => 'کاربر پیدا نشد!'];
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email    = trim($_POST['email']);
     $phone    = trim($_POST['phone']);
     $address  = trim($_POST['address']);
+    $password = trim($_POST['password']);
+    $role     = 'user'; // نقش پیش‌فرض
 
     // اعتبارسنجی نام کاربری
     if (empty($username)) {
@@ -42,8 +30,8 @@ if (!$user) {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'فرمت ایمیل نامعتبر است';
     } else {
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-        $stmt->bind_param("si", $email, $user_id);
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
@@ -59,24 +47,33 @@ if (!$user) {
         $errors['phone'] = 'لطفا یک شماره معتبر وارد کنید';
     }
 
+    // اعتبارسنجی رمز عبور
+    if (empty($password)) {
+        $errors['password'] = 'لطفا رمز عبور را وارد کنید';
+    } elseif (strlen($password) < 6) {
+        $errors['password'] = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
+    }
+
     // اعتبارسنجی آدرس
     if (!empty($address) && mb_strlen($address) > 300) {
         $errors['address'] = 'آدرس نمی‌تواند بیش از 300 کاراکتر باشد';
     }
 
-    // اگر خطایی وجود نداشت، اطلاعات را بروزرسانی می‌کنیم
+    // اگر خطایی وجود نداشت، کاربر جدید را ایجاد می‌کنیم
     if (empty($errors)) {
-        $update_sql = "UPDATE users SET username = ?, email = ?, phone = ?, address = ? WHERE id = ?";
-        $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("ssssi", $username, $email, $phone, $address, $user_id);
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $insert_sql = "INSERT INTO users (username, email, phone, address, password, role) VALUES (?, ?, ?, ?, ?, ?)";
+        $insert_stmt = $conn->prepare($insert_sql);
+        $insert_stmt->bind_param("ssssss", $username, $email, $phone, $address, $hashed_password, $role);
 
-        if ($update_stmt->execute()) {
-            $alert = ['type' => 'success', 'message' => 'اطلاعات با موفقیت به‌روزرسانی شد.'];
-            $user = ['username' => $username, 'email' => $email, 'phone' => $phone, 'address' => $address];
+        if ($insert_stmt->execute()) {
+            $alert = ['type' => 'success', 'message' => 'کاربر جدید با موفقیت ایجاد شد.'];
+            // خالی کردن فیلدها پس از ثبت موفق
+            $_POST = array();
         } else {
-            $alert = ['type' => 'error', 'message' => 'خطا در به‌روزرسانی اطلاعات.'];
+            $alert = ['type' => 'error', 'message' => 'خطا در ایجاد کاربر جدید.'];
         }
-        $update_stmt->close();
+        $insert_stmt->close();
     }
 }
 ?>
@@ -86,7 +83,7 @@ if (!$user) {
 
 <head>
     <meta charset="UTF-8">
-    <title>ویرایش اطلاعات کاربری</title>
+    <title>ایجاد کاربر جدید</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -116,16 +113,16 @@ if (!$user) {
         <div class="row justify-content-center">
             <div class="col-12 col-md-8 col-lg-6 mt-4">
                 <div class="card p-5 shadow">
+                    <h3 class="text-danger text-center mb-4">افزودن کاربر جدید</h3>
                     <form action="" method="POST">
 
                         <!-- نام کاربری -->
-                        <div class="mb-4" id="usernames">
+                        <div class="mb-4">
                             <label for="username" class="form-label">نام کاربری:</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-user"></i></span>
-                                <input type="text" id="username" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
-                                    title="فقط حروف مجاز است"
-                                    value="<?= htmlspecialchars($user['username'] ?? '') ?>">
+                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
+                                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
                             </div>
                             <?php if (isset($errors['username'])): ?>
                                 <span class="error-message"><?= $errors['username'] ?></span>
@@ -133,13 +130,12 @@ if (!$user) {
                         </div>
 
                         <!-- ایمیل -->
-                        <div class="mb-4" id="email">
+                        <div class="mb-4">
                             <label for="email" class="form-label">ایمیل:</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-envelope"></i></span>
-                                <input type="text" id="emailuser" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email"
-                                    title="لطفا ایمیل معتبر وارد کنید"
-                                    value="<?= htmlspecialchars($user['email'] ?? '') ?>">
+                                <input type="email" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email"
+                                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                             </div>
                             <?php if (isset($errors['email'])): ?>
                                 <span class="error-message"><?= $errors['email'] ?></span>
@@ -147,36 +143,48 @@ if (!$user) {
                         </div>
 
                         <!-- شماره تماس -->
-                        <div id="mobile" class="mb-4">
+                        <div class="mb-4">
                             <label for="phone" class="form-label">شماره تماس:</label>
                             <div class="input-group">
-                                <span class="input-group-text" id="phone" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
                                 <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="phone" name="phone"
-                                    title="لطفا شماره تلفن معتبر وارد کنید"
-                                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
+                                    value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
                             </div>
                             <?php if (isset($errors['phone'])): ?>
                                 <span class="error-message"><?= $errors['phone'] ?></span>
                             <?php endif; ?>
                         </div>
 
+                        <!-- رمز عبور -->
+                        <div class="mb-4">
+                            <label for="password" class="form-label">رمز عبور:</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="password" name="password">
+                            </div>
+                            <?php if (isset($errors['password'])): ?>
+                                <span class="error-message"><?= $errors['password'] ?></span>
+                            <?php endif; ?>
+                        </div>
+
                         <!-- آدرس -->
                         <div class="mb-5">
-                            <label for="address" class="form-label">آدرس:</label>
+                            <label for="address" class="form-label" style="border-color: #9FACB9;">آدرس:</label>
                             <div class="input-group">
-                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
-                                <textarea rows="1" class="form-control shadow-none" style="border-color: #9FACB9;" id="address" name="address"
-                                    placeholder="آدرس خود را وارد کنید"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                                <span class="input-group-text shadow-none" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
+                                <textarea rows="1" class="form-control shadow-none" style="border-color: #9FACB9;" id="address" name="address"><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
                             </div>
+                            <?php if (isset($errors['address'])): ?>
+                                <span class="error-message"><?= $errors['address'] ?></span>
+                            <?php endif; ?>
                         </div>
 
                         <!-- دکمه‌ها -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-check me-2"></i>ذخیره اطلاعات
+                                <i class="fas fa-user-plus me-2"></i>ایجاد کاربر
                             </button>
-
-                            <a href="../../view/MainPage.php" class="btn btn-secondary">
+                            <a href="manage-users.php" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>بازگشت
                             </a>
                         </div>
@@ -192,7 +200,7 @@ if (!$user) {
                 icon: '<?= $alert['type'] ?>',
                 title: '<?= $alert['type'] === 'success' ? 'موفقیت' : 'خطا' ?>',
                 text: '<?= $alert['message'] ?>',
-                showConfirmButton: false, // این خط دکمه تایید را مخفی می‌کند
+                showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true,
                 didOpen: () => {
@@ -200,7 +208,7 @@ if (!$user) {
                 }
             }).then(() => {
                 <?php if ($alert['type'] === 'success'): ?>
-                    window.location.href = '../../view/MainPage.php';
+                    window.location.href = 'manage-users.php'; // بازگشت به همان صفحه برای ایجاد کاربر جدید
                 <?php endif; ?>
             });
         </script>

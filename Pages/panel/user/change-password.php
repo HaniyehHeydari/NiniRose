@@ -25,15 +25,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->fetch();
     $stmt->close();
 
-    if (!password_verify($currentPassword, $storedHash)) {
+
+    if (empty($currentPassword)) {
+        $errors['currentPassword'] = 'لطفا رمز عبور فعلی را وارد کنید';
+    } elseif (!password_verify($currentPassword, $storedHash)) {
         $errors['currentPassword'] = "رمز عبور فعلی اشتباه است.";
     }
 
-    if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $newPassword)) {
+    if (empty($newPassword)) {
+        $errors['newPassword'] = 'لطفا رمز عبور فعلی را وارد کنید';
+    } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $newPassword)) {
         $errors['newPassword'] = "رمز عبور باید شامل حداقل ۸ کاراکتر، حروف بزرگ و کوچک، عدد و یک کاراکتر خاص باشد.";
     }
 
-    if ($newPassword !== $confirmPassword) {
+    if (empty($confirmPassword)) {
+        $errors['confirmPassword'] = 'لطفا رمز عبور فعلی را وارد کنید';
+    } elseif ($newPassword !== $confirmPassword) {
         $errors['confirmPassword'] = "رمز عبور جدید با تکرار آن مطابقت ندارد.";
     }
 
@@ -58,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <title>تغییر رمز عبور</title>
@@ -67,85 +75,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-<div class="container mt-5">
-    <div class="row justify-content-center align-items-stretch">
-        <!-- فرم تغییر رمز عبور -->
-        <div class="col-12 col-md-8 col-lg-6 mt-4">
-            <div class="card p-5 shadow">
-                <form method="POST" action="">
-                    <div class="mb-4">
-                        <label for="currentPassword" class="form-label">رمز عبور فعلی:</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="currentPassword" name="currentPassword" required>
+    <div class="container mt-5">
+        <div class="row justify-content-center align-items-stretch">
+            <!-- فرم تغییر رمز عبور -->
+            <div class="col-12 col-md-8 col-lg-6 mt-4">
+                <div class="card p-5 shadow">
+                    <form method="POST" action="">
+                        <div class="mb-4">
+                            <label for="currentPassword" class="form-label">رمز عبور فعلی:</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="currentPassword" name="currentPassword">
+                            </div>
+                            <?php if (isset($errors['currentPassword'])): ?>
+                                <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['currentPassword']); ?></div>
+                            <?php endif; ?>
                         </div>
-                        <?php if (isset($errors['currentPassword'])): ?>
-                            <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['currentPassword']); ?></div>
-                        <?php endif; ?>
-                    </div>
 
-                    <div class="mb-4">
-                        <label for="newPassword" class="form-label">رمز عبور جدید:</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="newPassword" name="newPassword" required>
+                        <div class="mb-4">
+                            <label for="newPassword" class="form-label">رمز عبور جدید:</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="newPassword" name="newPassword">
+                            </div>
+                            <?php if (isset($errors['newPassword'])): ?>
+                                <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['newPassword']); ?></div>
+                            <?php endif; ?>
                         </div>
-                        <?php if (isset($errors['newPassword'])): ?>
-                            <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['newPassword']); ?></div>
-                        <?php endif; ?>
-                    </div>
 
-                    <div class="mb-5">
-                        <label for="confirmPassword" class="form-label">تکرار رمز عبور جدید:</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
-                            <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="confirmPassword" name="confirmPassword" required>
+                        <div class="mb-5">
+                            <label for="confirmPassword" class="form-label">تکرار رمز عبور جدید:</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control shadow-none" style="border-color: #9FACB9;" id="confirmPassword" name="confirmPassword">
+                            </div>
+                            <?php if (isset($errors['confirmPassword'])): ?>
+                                <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['confirmPassword']); ?></div>
+                            <?php endif; ?>
                         </div>
-                        <?php if (isset($errors['confirmPassword'])): ?>
-                            <div class="text-danger mt-1"><?php echo htmlspecialchars($errors['confirmPassword']); ?></div>
+
+                        <?php if (isset($errors['general'])): ?>
+                            <div class="text-danger text-center mb-2"><?php echo htmlspecialchars($errors['general']); ?></div>
                         <?php endif; ?>
-                    </div>
-
-                    <?php if (isset($errors['general'])): ?>
-                        <div class="text-danger text-center mb-2"><?php echo htmlspecialchars($errors['general']); ?></div>
-                    <?php endif; ?>
-
-                    <div class="d-flex justify-content-center gap-5">
-                        <button type="submit" class="btn btn-success" style="width: 45%;">تغییر رمز عبور</button>
-                        <a href="../../view/MainPage.php" class="btn btn-secondary" style="width: 45%;">بازگشت</a>
-                    </div>
-                </form>
+                        <div class="d-flex flex-column gap-3 w-100">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i> تغییر رمز عبور
+                            </button>
+                            <a href="../../view/MainPage.php" class="btn btn-secondary w-100">
+                                <i class="fas fa-arrow-left me-2"></i> بازگشت
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- شرایط رمز -->
-        <div class="col-12 col-md-4 mb-4 mt-5">
-            <div class="border-start p-3">
-                <h5 class="mb-3">رمز عبور باید شامل موارد زیر باشد:</h5>
-                <ul>
-                    <li>حداقل 8 کاراکتر</li>
-                    <li>عدد (0-9)</li>
-                    <li>حروف بزرگ و کوچک</li>
-                    <li>یک کاراکتر خاص (@ ! % * & ...)</li>
-                </ul>
+            <!-- شرایط رمز -->
+            <div class="col-12 col-md-4 mb-4 mt-5">
+                <div class="border-start p-3">
+                    <h5 class="mb-3">رمز عبور باید شامل موارد زیر باشد:</h5>
+                    <ul>
+                        <li>حداقل 8 کاراکتر</li>
+                        <li>عدد (0-9)</li>
+                        <li>حروف بزرگ و کوچک</li>
+                        <li>یک کاراکتر خاص (@ ! % * & ...)</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- SweetAlert موفقیت -->
-<?php if (!empty($success)): ?>
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'موفقیت!',
-        text: '<?php echo $success; ?>',
-        confirmButtonText: 'باشه'
-    }).then(() => {
-        window.location.href = "../../view/MainPage.php";
-    });
-</script>
-<?php endif; ?>
+    <!-- SweetAlert موفقیت -->
+    <?php if (!empty($success)): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'موفقیت!',
+                text: '<?php echo $success; ?>',
+                showConfirmButton: false, // این خط دکمه تایید را مخفی می‌کند
+                timer: 2000,
+                timerProgressBar: true,
+            }).then(() => {
+                window.location.href = "../../view/MainPage.php";
+            });
+        </script>
+    <?php endif; ?>
 
 </body>
+
 </html>

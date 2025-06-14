@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('../../../config/db.php'); // مسیر فایل پیکربندی دیتابیس
+include('../../../config/db.php');
 
 // فقط سوپر ادمین اجازه دسترسی دارد
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
@@ -8,7 +8,6 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'super_admin') {
 }
 
 // ۱. خواندن آیدی کاربری که باید ویرایش شود
-// اول از POST (فرم ویرایش) می‌پرسیم، در غیر این صورت از GET (لینک ویرایش)
 $user_id = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'])) {
     $user_id = intval($_POST['user_id']);
@@ -22,8 +21,9 @@ if (!$user_id) {
 }
 
 $alert = null;
+$errors = [];
 
-// ۲. دریافت اطلاعات فعلی آن کاربر (از جدول users، شامل ستون address)
+// ۲. دریافت اطلاعات فعلی آن کاربر
 $sql = "SELECT username, email, phone, address FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -35,32 +35,71 @@ $stmt->close();
 if (!$user) {
     $alert = ['type' => 'error', 'message' => 'کاربری با این شناسه یافت نشد.'];
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
-    // ۳. اگر فرم ارسال شده بود، مقادیر جدید را بخوان و UPDATE کن
+    // ۳. دریافت مقادیر جدید از فرم
     $username = trim($_POST['username']);
     $email    = trim($_POST['email']);
     $phone    = trim($_POST['phone']);
     $address  = trim($_POST['address']);
 
-    $update_sql = "UPDATE users SET username = ?, email = ?, phone = ?, address = ? WHERE id = ?";
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("ssssi", $username, $email, $phone, $address, $user_id);
-
-    if ($update_stmt->execute()) {
-        $_SESSION['success_message'] = "اطلاعات کاربر با موفقیت به‌روزرسانی شد.";
-        header("Location: manage-users.php");
-        exit;
-    } else {
-        $alert = ['type' => 'error', 'message' => 'خطا در به‌روزرسانی اطلاعات: ' . $update_stmt->error];
+    // اعتبارسنجی نام کاربری
+    if (empty($username)) {
+        $errors['username'] = 'لطفا نام کاربری را وارد کنید';
+    } elseif (!preg_match('/^(?![0-9])[آ-یa-zA-Z0-9\s‌]{3,}$/u', $username)) {
+        $errors['username'] = 'نام کاربری باید حداقل ۳ کاراکتر و فقط شامل حروف و اعداد باشد';
     }
-    $update_stmt->close();
 
-    // اگر می‌خواهید فرم را بعد از موفقیت هم دوباره پر کنید:
+    // اعتبارسنجی ایمیل
+    if (empty($email)) {
+        $errors['email'] = 'لطفا ایمیل را وارد کنید';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'فرمت ایمیل نامعتبر است';
+    } else {
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmt->bind_param("si", $email, $user_id);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $errors['email'] = 'این ایمیل قبلا ثبت شده است';
+        }
+        $stmt->close();
+    }
+
+    // اعتبارسنجی شماره تلفن
+    if (empty($phone)) {
+        $errors['phone'] = 'لطفا شماره تلفن را وارد کنید';
+    } elseif (!preg_match('/^09\d{9}$/', $phone)) {
+        $errors['phone'] = 'لطفا یک شماره معتبر وارد کنید';
+    }
+
+    // اعتبارسنجی آدرس
+    if (!empty($address) && mb_strlen($address) > 300) {
+        $errors['address'] = 'آدرس نمی‌تواند بیش از 300 کاراکتر باشد';
+    }
+
+    // اگر خطایی وجود نداشت، اطلاعات را بروزرسانی می‌کنیم
+    if (empty($errors)) {
+        $update_sql = "UPDATE users SET username = ?, email = ?, phone = ?, address = ? WHERE id = ?";
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("ssssi", $username, $email, $phone, $address, $user_id);
+
+        if ($update_stmt->execute()) {
+            $_SESSION['success_message'] = "اطلاعات کاربر با موفقیت به‌روزرسانی شد.";
+            header("Location: manage-users.php");
+            exit;
+        } else {
+            $alert = ['type' => 'error', 'message' => 'خطا در به‌روزرسانی اطلاعات: ' . $update_stmt->error];
+        }
+        $update_stmt->close();
+    }
+
+    // برای نمایش مجدد مقادیر در فرم در صورت خطا
     $user = ['username' => $username, 'email' => $email, 'phone' => $phone, 'address' => $address];
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <title>ویرایش کاربر</title>
@@ -75,11 +114,20 @@ if (!$user) {
 
     <style>
         /* راست‌چین کردن ورودی ایمیل، تلفن و آدرس */
-        input#email, input#phone, textarea#address {
+        input#email,
+        input#phone,
+        textarea#address {
             text-align: right !important;
+        }
+
+         .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -93,33 +141,44 @@ if (!$user) {
                         <input type="hidden" name="update_user" value="1">
 
                         <!-- نام کاربری -->
-                        <div class="mb-4">
+                        <div class="mb-4" id="usernames">
                             <label for="username" class="form-label">نام کاربری:</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
-                                    value="<?= htmlspecialchars($user['username'] ?? '') ?>" required>
+                                <input type="text" id="username" class="form-control shadow-none" style="border-color: #9FACB9;" id="username" name="username"
+                                    title="فقط حروف مجاز است"
+                                    value="<?= htmlspecialchars($user['username'] ?? '') ?>">
                             </div>
+                            <?php if (isset($errors['username'])): ?>
+                                <span class="error-message"><?= $errors['username'] ?></span>
+                            <?php endif; ?>
                         </div>
-
                         <!-- ایمیل -->
-                        <div class="mb-4">
+                        <div class="mb-4" id="email">
                             <label for="email" class="form-label">ایمیل:</label>
                             <div class="input-group">
                                 <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-envelope"></i></span>
-                                <input type="email" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email"
-                                    value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+                                <input type="text" id="emailuser" class="form-control shadow-none" style="border-color: #9FACB9;" id="email" name="email"
+                                    title="لطفا ایمیل معتبر وارد کنید"
+                                    value="<?= htmlspecialchars($user['email'] ?? '') ?>">
                             </div>
+                            <?php if (isset($errors['email'])): ?>
+                                <span class="error-message"><?= $errors['email'] ?></span>
+                            <?php endif; ?>
                         </div>
 
                         <!-- شماره تماس -->
-                        <div class="mb-4">
+                        <div id="mobile" class="mb-4">
                             <label for="phone" class="form-label">شماره تماس:</label>
                             <div class="input-group">
-                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
+                                <span class="input-group-text" id="phone" style="border-color: #9FACB9;"><i class="fas fa-phone-alt"></i></span>
                                 <input type="text" class="form-control shadow-none" style="border-color: #9FACB9;" id="phone" name="phone"
-                                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+                                    title="لطفا شماره تلفن معتبر وارد کنید"
+                                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
                             </div>
+                            <?php if (isset($errors['phone'])): ?>
+                                <span class="error-message"><?= $errors['phone'] ?></span>
+                            <?php endif; ?>
                         </div>
 
                         <!-- آدرس -->
@@ -128,14 +187,20 @@ if (!$user) {
                             <div class="input-group">
                                 <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-map-marker-alt"></i></span>
                                 <textarea rows="1" class="form-control shadow-none" style="border-color: #9FACB9;" id="address" name="address"
-                                    ><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                                    placeholder="آدرس خود را وارد کنید"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
                             </div>
                         </div>
 
+
                         <!-- دکمه‌ها -->
-                        <div class="d-flex justify-content-center gap-4">
-                            <button type="submit" class="btn btn-danger" style="width: 45%;">ذخیره تغییرات</button>
-                            <a href="manage-users.php" class="btn btn-secondary" style="width: 45%;">بازگشت</a>
+                         <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-check me-2"></i>ذخیره اطلاعات
+                            </button>
+
+                            <a href="manage-users.php" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>بازگشت
+                            </a>
                         </div>
                     </form>
 
@@ -156,4 +221,5 @@ if (!$user) {
         </div>
     </div>
 </body>
+
 </html>

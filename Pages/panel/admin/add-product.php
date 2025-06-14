@@ -211,33 +211,35 @@ if (($_SESSION['user']['role'] === 'super_admin')) {
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">دسته‌بندی</label>
-                            <select name="category_id" class="form-select shadow-none" style="border-color: #9FACB9;">
-                                <option value="">انتخاب دسته‌بندی</option>
-                                <?php while ($cat = $categories->fetch_assoc()): ?>
-                                    <option value="<?= $cat['id'] ?>" <?= (isset($_POST['category_id']) && $_POST['category_id'] == $cat['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($cat['name']) ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
-                        </div>
-
-                        <?php if ($user_role === 'super_admin'): ?>
-                            <div class="mb-3">
-                                <label class="form-label">فروشگاه</label>
-                                <select name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;">
-                                    <option value="">انتخاب فروشگاه</option>
-                                    <?php while ($store = $stores->fetch_assoc()): ?>
-                                        <option value="<?= $store['id'] ?>" <?= (isset($_POST['store_id']) && $_POST['store_id'] == $store['id']) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($store['name']) ?>
+                        <div class="row mb-3">
+                            <div class="mb-6">
+                                <label class="form-label">دسته‌بندی</label>
+                                <select name="category_id" class="form-select shadow-none" style="border-color: #9FACB9;">
+                                    <option value="">انتخاب دسته‌بندی</option>
+                                    <?php while ($cat = $categories->fetch_assoc()): ?>
+                                        <option value="<?= $cat['id'] ?>" <?= (isset($_POST['category_id']) && $_POST['category_id'] == $cat['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($cat['name']) ?>
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
-                        <?php else: ?>
-                            <input type="hidden" name="store_id" value="<?= $store_id ?>">
-                        <?php endif; ?>
+
+                            <?php if ($user_role === 'super_admin'): ?>
+                                <div class="mb-6">
+                                    <label class="form-label">فروشگاه</label>
+                                    <select name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;">
+                                        <option value="">انتخاب فروشگاه</option>
+                                        <?php while ($store = $stores->fetch_assoc()): ?>
+                                            <option value="<?= $store['id'] ?>" <?= (isset($_POST['store_id']) && $_POST['store_id'] == $store['id']) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($store['name']) ?>
+                                            </option>
+                                        <?php endwhile; ?>
+                                    </select>
+                                </div>
+                            <?php else: ?>
+                                <input type="hidden" name="store_id" value="<?= $store_id ?>">
+                            <?php endif; ?>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">سایزهای محصول</label>

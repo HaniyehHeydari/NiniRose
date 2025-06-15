@@ -195,7 +195,7 @@ if (!$user) {
                         <!-- دکمه‌ها -->
                          <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-check me-2"></i>ذخیره اطلاعات
+                                <i class="fas fa-check me-2"></i>ذخیره تغییرات
                             </button>
 
                             <a href="manage-users.php" class="btn btn-secondary">

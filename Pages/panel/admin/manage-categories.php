@@ -3,6 +3,7 @@ include('../../../config/db.php');
 require '../../../vendor/autoload.php';
 use Morilog\Jalali\Jalalian;
 
+
 if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], ['super_admin', 'store_admin'])) {
     die("دسترسی غیرمجاز");
 }
@@ -28,6 +29,7 @@ if ($_SESSION['user']['role'] === 'store_admin') {
 
 $result = $conn->query($sql);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -173,8 +175,9 @@ $result = $conn->query($sql);
     </script>
 
     <!-- پیام موفقیت با SweetAlert -->
-    <?php if (isset($_GET['message'])): ?>
-    <script>
+ <?php if (isset($_GET['message'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
         <?php if ($_GET['message'] === 'created'): ?>
             Swal.fire({
                 icon: 'success',
@@ -182,16 +185,18 @@ $result = $conn->query($sql);
                 text: 'دسته‌بندی جدید با موفقیت ایجاد شد.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false
+                showConfirmButton: false,
+                position: 'center'
             });
         <?php elseif ($_GET['message'] === 'updated'): ?>
             Swal.fire({
                 icon: 'success',
                 title: 'موفقیت',
-                text: 'اطلاعات دسته‌بندی با موفقیت ویرایش شد.',
+                text: 'تغییرات دسته‌بندی با موفقیت ذخیره شد.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false
+                showConfirmButton: false,
+                position: 'center'
             });
         <?php elseif ($_GET['message'] === 'deleted'): ?>
             Swal.fire({
@@ -200,19 +205,18 @@ $result = $conn->query($sql);
                 text: 'دسته‌بندی با موفقیت حذف شد.',
                 timer: 3000,
                 timerProgressBar: true,
-                showConfirmButton: false
+                showConfirmButton: false,
+                position: 'center'
             });
         <?php endif; ?>
 
-            // حذف پارامتر پیام از URL پس از نمایش
-            window.addEventListener('load', () => {
-                const url = new URL(window.location);
-                url.searchParams.delete('message');
-                window.history.replaceState({}, document.title, url);
-            });
-        </script>
-    <?php endif; ?>
-
+        // حذف پارامتر پیام از URL
+        const url = new URL(window.location);
+        url.searchParams.delete('message');
+        window.history.replaceState({}, document.title, url);
+    });
+</script>
+<?php endif; ?>
 </body>
 
 </html>

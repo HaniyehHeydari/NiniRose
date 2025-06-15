@@ -10,7 +10,7 @@ if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], ['
 $user_role = $_SESSION['user']['role'];
 $store_id = $_SESSION['user']['store_id'] ?? null;
 $errors = [];
-$success = '';
+$alert = null;
 
 // دریافت اطلاعات مقاله
 $article_id = $_GET['id'] ?? null;
@@ -60,28 +60,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user_role === 'super_admin') {
         $store_id = $_POST['store_id'] ?? null;
         if (!$store_id) {
-            $errors[] = "لطفاً یک فروشگاه انتخاب کنید.";
+            $errors['store_id'] = "لطفاً یک فروشگاه انتخاب کنید.";
         }
     }
 
-    if ($title === '' || $content === '') {
-        $errors[] = "عنوان و محتوای مقاله الزامی هستند.";
+    // اعتبارسنجی عنوان
+    if (empty($title)) {
+        $errors['title'] = "عنوان مقاله الزامی است.";
+    } elseif (!preg_match('/^(?![0-9])[آ-یa-zA-Z0-9\s‌]{3,}$/u', $title)) {
+        $errors['title'] = "لطفا یک عنوان معتبر وارد کنید";
+    }
+
+    // اعتبارسنجی محتوا
+    if (empty($content)) {
+        $errors['content'] = "محتوای مقاله الزامی است.";
+    } elseif (mb_strlen($content) > 5000) {
+        $errors['content'] = "محتوای مقاله نمی‌تواند بیش از 5000 کاراکتر باشد.";
     }
 
     $image_path = $article['image'];
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // حذف تصویر قبلی اگر وجود دارد
-        if ($image_path && file_exists('../../../' . $image_path)) {
-            unlink('../../../' . $image_path);
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $file_type = $_FILES['image']['type'];
+
+        if (!in_array($file_type, $allowed_types)) {
+            $errors['image'] = "فرمت تصویر باید JPG, PNG یا GIF باشد.";
+        } elseif ($_FILES['image']['size'] > 2 * 1024 * 1024) {
+            $errors['image'] = "حجم تصویر نباید بیشتر از 2 مگابایت باشد.";
+        } else {
+            // حذف تصویر قبلی اگر وجود دارد
+            if ($image_path && file_exists('../../../' . $image_path)) {
+                unlink('../../../' . $image_path);
+            }
+            
+            // آپلود تصویر جدید
+            $upload_dir = '../../../Public/uploads/articles/';
+            if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $image_name = uniqid() . '.' . $ext;
+            $image_path = 'Public/uploads/articles/' . $image_name;
+            move_uploaded_file($_FILES['image']['tmp_name'], '../../../' . $image_path);
         }
-        
-        // آپلود تصویر جدید
-        $upload_dir = '../../../Public/uploads/articles/';
-        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $image_name = uniqid() . '.' . $ext;
-        $image_path = 'Public/uploads/articles/' . $image_name;
-        move_uploaded_file($_FILES['image']['tmp_name'], '../../../' . $image_path);
+    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+        $errors['image'] = "خطا در آپلود تصویر. لطفاً مجدداً تلاش کنید.";
     }
 
     if (empty($errors)) {
@@ -89,11 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("ssisi", $title, $content, $store_id, $image_path, $article_id);
         
         if ($stmt->execute()) {
-            $_SESSION['success'] = "مقاله با موفقیت ویرایش شد.";
-            header("Location: manage_articles.php");
-            exit;
+            $alert = ['type' => 'success', 'message' => "مقاله با موفقیت ویرایش شد."];
         } else {
-            $errors[] = "خطا در ویرایش مقاله: " . $conn->error;
+            $alert = ['type' => 'error', 'message' => "خطا در ویرایش مقاله: " . $conn->error];
         }
         $stmt->close();
     }
@@ -107,7 +126,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>ویرایش مقاله</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+        .img-thumbnail {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 
@@ -120,35 +154,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card p-4 shadow">
                     <h4 class="text-danger mb-4 text-center">ویرایش مقاله</h4>
 
-                    <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger text-center">
-                            <ul class="mb-0">
-                                <?php foreach ($errors as $e): ?>
-                                    <li><?= htmlspecialchars($e) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    <?php endif; ?>
-
                     <form method="POST" enctype="multipart/form-data" novalidate>
                         <div class="mb-3">
                             <label class="form-label">عنوان مقاله</label>
                             <div class="input-group">
-                                <span class="input-group-text" style="border-color: #9FACB9;"><i class="fas fa-heading"></i></span>
-                                <input type="text" name="title" class="form-control shadow-none" style="border-color: #9FACB9;" required 
+                                <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                <input type="text" name="title" class="form-control" required 
                                        value="<?= htmlspecialchars($article['title']) ?>">
                             </div>
+                            <?php if (isset($errors['title'])): ?>
+                                <span class="error-message"><?= $errors['title'] ?></span>
+                            <?php endif; ?>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">محتوای مقاله</label>
-                            <textarea name="content" rows="6" class="form-control shadow-none" style="border-color: #9FACB9;"><?= htmlspecialchars($article['content']) ?></textarea>
+                            <textarea name="content" rows="6" class="form-control"><?= htmlspecialchars($article['content']) ?></textarea>
+                            <?php if (isset($errors['content'])): ?>
+                                <span class="error-message"><?= $errors['content'] ?></span>
+                            <?php endif; ?>
                         </div>
 
                         <?php if ($user_role === 'super_admin'): ?>
                             <div class="mb-3">
                                 <label class="form-label">فروشگاه</label>
-                                <select name="store_id" class="form-select shadow-none" style="border-color: #9FACB9;" required>
+                                <select name="store_id" class="form-select" required>
                                     <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores_query->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" 
@@ -157,6 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
+                                <?php if (isset($errors['store_id'])): ?>
+                                    <span class="error-message"><?= $errors['store_id'] ?></span>
+                                <?php endif; ?>
                             </div>
                         <?php else: ?>
                             <input type="hidden" name="store_id" value="<?= htmlspecialchars($store_id) ?>">
@@ -164,17 +197,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="mb-3">
                             <label class="form-label">تصویر مقاله</label>
-                            <input type="file" name="image" accept="image/*" class="form-control shadow-none" style="border-color: #9FACB9;" />
+                            <input type="file" name="image" accept="image/*" class="form-control">
+                            <?php if (isset($errors['image'])): ?>
+                                <span class="error-message"><?= $errors['image'] ?></span>
+                            <?php endif; ?>
                             <?php if ($article['image'] && file_exists('../../../' . $article['image'])): ?>
-                                <div class="mt-2">
-                                    <img src="../../../<?= $article['image'] ?>" class="img-thumbnail" style="max-height: 150px;">
+                                <div class="mt-3">
+                                    <img src="../../../<?= $article['image'] ?>" class="img-thumbnail">
+                                    <p class="text-muted mt-2">تصویر فعلی</p>
                                 </div>
                             <?php endif; ?>
                         </div>
 
-                        <div class="d-flex justify-content-center gap-3">
-                            <button type="submit" class="btn btn-danger" style="width: 45%;">ذخیره تغییرات</button>
-                            <a href="manage_articles.php" class="btn btn-secondary" style="width: 45%;">بازگشت</a>
+                       <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-save me-2"></i>ذخیره تغییرات
+                            </button>
+                            <a href="manage_articles.php" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>انصراف
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -184,15 +225,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<?php if (!empty($errors)): ?>
+<?php if ($alert): ?>
     <script>
         Swal.fire({
-            icon: 'error',
-            title: 'خطا',
-            html: <?= json_encode(implode('<br>', array_map('htmlspecialchars', $errors)), JSON_UNESCAPED_UNICODE) ?>,
-            confirmButtonText: 'باشه'
+            icon: '<?= $alert['type'] ?>',
+            title: '<?= $alert['type'] === 'success' ? 'موفقیت' : 'خطا' ?>',
+            text: '<?= $alert['message'] ?>',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        }).then(() => {
+            <?php if ($alert['type'] === 'success'): ?>
+                window.location.href = 'manage_articles.php';
+            <?php endif; ?>
         });
     </script>
 <?php endif; ?>

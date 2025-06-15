@@ -1,6 +1,7 @@
 <?php
 include('../../../config/db.php');
 
+
 // فقط سوپر ادمین و ادمین فروشگاه اجازه دسترسی دارند
 if (!isset($_SESSION['user']['role']) || !in_array($_SESSION['user']['role'], ['super_admin', 'store_admin'])) {
     die("دسترسی غیرمجاز");
@@ -60,25 +61,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // اگر خطایی وجود نداشت، ثبت انجام شود
-    if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO categories (name, store_id, created_at) VALUES (?, ?, NOW())");
-        $stmt->bind_param("si", $name, $store_id);
+// اگر خطایی وجود نداشت، ثبت انجام شود
+if (empty($errors)) {
+    $stmt = $conn->prepare("INSERT INTO categories (name, store_id, created_at) VALUES (?, ?, NOW())");
+    $stmt->bind_param("si", $name, $store_id);
 
-        try {
-            if ($stmt->execute()) {
-                $_SESSION['success_message'] = "دسته‌بندی با موفقیت ایجاد شد.";
-                header("Location: manage-categories.php");
-                exit;
-            }
-        } catch (mysqli_sql_exception $e) {
-            if ($e->getCode() == 1062) { // کد خطای duplicate entry
-                $errors['name'] = " نام دسته‌بندی تکرای است";
-            } else {
-                $errors['general'] = "خطا در ثبت دسته‌بندی: " . $e->getMessage();
-            }
+    try {
+        if ($stmt->execute()) {
+            // تغییر این قسمت
+            header("Location: manage-categories.php?message=created");
+            exit;
         }
-        $stmt->close();
+    } catch (mysqli_sql_exception $e) {
+        if ($e->getCode() == 1062) {
+            $errors['name'] = " نام دسته‌بندی تکرای است";
+        } else {
+            $errors['general'] = "خطا در ثبت دسته‌بندی: " . $e->getMessage();
+        }
     }
+    $stmt->close();
+}
 }
 ?>
 
@@ -132,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <?php if ($user_role === 'super_admin'): ?>
                         <div class="mb-4">
-                            <label for="store_id" class="form-label">انتخاب فروشگاه (اختیاری):</label>
+                            <label for="store_id" class="form-label">نام فروشگاه</label>
                             <select name="store_id" id="store_id" class="form-select shadow-none" 
                                 style="border-color: #9FACB9;">
                                 <option value="">انتخاب فروشگاه</option>
@@ -149,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="d-grid gap-2">
     <button type="submit" class="btn btn-danger">
-        <i class="fas fa-plus-circle me-2"></i>ایجاد دسته‌بندی
+  <i class="fas fa-layer-group me-2"></i>ایجاد دسته‌بندی
     </button>
 
     <a href="manage-categories.php" class="btn btn-secondary">

@@ -86,9 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-center gap-4">
-                            <button type="submit" class="btn btn-danger" style="width: 45%;">افزودن اسلایدر</button>
-                            <a href="manage-slider.php" class="btn btn-secondary" style="width: 45%;">بازگشت</a>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-check me-2"></i>ایجاد اسلایدر
+                            </button>
+
+                            <a href="manage-slider.php" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>بازگشت
+                            </a>
                         </div>
                     </form>
                 </div>

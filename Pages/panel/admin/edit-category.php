@@ -76,26 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_category'])) {
     if (empty($errors)) {
         $update_sql = "UPDATE categories SET name = ?, store_id = ? WHERE id = ?";
         $stmt = $conn->prepare($update_sql);
-        
-        if ($store_id === null) {
-            $stmt->bind_param("sii", $name, $category['store_id'], $category_id);
-        } else {
-            $stmt->bind_param("sii", $name, $store_id, $category_id);
-        }
+        $stmt->bind_param("sii", $name, $store_id, $category_id);
 
         try {
             if ($stmt->execute()) {
                 $_SESSION['success_message'] = "دسته‌بندی با موفقیت به‌روزرسانی شد.";
-                echo '<script>
-                    Swal.fire({
-                        icon: "success",
-                        title: "موفقیت",
-                        text: "دسته‌بندی با موفقیت به‌روزرسانی شد",
-                        confirmButtonText: "متوجه شدم"
-                    }).then(() => {
-                        window.location.href = "manage-categories.php";
-                    });
-                </script>';
+                header("Location: manage-categories.php?message=updated");
                 exit;
             }
         } catch (mysqli_sql_exception $e) {
@@ -161,9 +147,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_category'])) {
 
                         <?php if ($_SESSION['user']['role'] === 'super_admin'): ?>
                             <div class="mb-4">
-                                <label for="store_id" class="form-label">انتخاب فروشگاه (اختیاری):</label>
+                                <label for="store_id" class="form-label">نام فروشگاه</label>
                                 <select name="store_id" id="store_id" class="form-select shadow-none" style="border-color: #9FACB9;">
-                                    <option value="">-- بدون فروشگاه --</option>
+                                    <option value="">انتخاب فروشگاه</option>
                                     <?php while ($store = $stores->fetch_assoc()): ?>
                                         <option value="<?= $store['id'] ?>" <?= ($store['id'] == ($_POST['store_id'] ?? $category['store_id'] ?? '')) ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($store['name']) ?>
